@@ -57,7 +57,7 @@ export function BillingPage() {
 
   return (
     <>
-      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Cada contrato gerado consome 1 crédito. Pague pelo InfinitePay e ative seu crédito com o código recebido." />
+      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Cada contrato consome 1 crédito de R$ 6,00. Pague com InfinitePay e o crédito aparece automaticamente — o código abaixo é apenas um plano B." />
       <div className="billing-layout">
         <section className="panel billing-plan">
           <span className="billing-icon"><CreditCard size={22} /></span>
@@ -77,8 +77,8 @@ export function BillingPage() {
         </section>
         <section className="panel billing-redeem">
           <span className="billing-icon"><KeyRound size={22} /></span>
-          <h2>Já pagou?</h2>
-          <p>Digite o código enviado pelo operador após a confirmação do pagamento.</p>
+          <h2>Já pagou? (plano B)</h2>
+          <p>Normalmente você não precisa de nada aqui: o crédito aparece sozinho segundos após o pagamento. Se não apareceu, fale com o suporte no WhatsApp (Fabio.tec · (71) 99938-3974). Após confirmar o pagamento, enviamos um <b>código de uso único</b>; digite-o abaixo e clique em Ativar crédito.</p>
           <form onSubmit={(event) => { event.preventDefault(); if (code.trim()) redeem.mutate(code); }}>
             <label className="field-label">Código de ativação
               <input className="text-input" value={code} onChange={(event) => setCode(event.target.value)} placeholder="EX.: CONTRATTO-ABCD-1234" />
