@@ -3,6 +3,7 @@ import { getAuthorizedUser, isResponse } from "../_shared/auth.ts";
 import { AUTHORSHIP_PHRASE } from "../_shared/attribution.ts";
 import { AUTHORSHIP_SHA256 } from "../_shared/attribution.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { notifyOwner, ownerEmailShell } from "../_shared/notify.ts";
 
 const requestSchema = z.object({
   session_id: z.string().uuid(),
@@ -120,6 +121,16 @@ Deno.serve(async (request) => {
   if (consumeError || consumed !== true) {
     return jsonResponse({ error: "Não foi possível baixar o crédito deste contrato. Tente novamente." }, 402);
   }
+
+  await notifyOwner(
+    "Novo contrato gerado",
+    ownerEmailShell("Novo contrato gerado", [
+      ["Usuário", user.email ?? "—"],
+      ["Contrato", contract.title],
+      ["Modelo", template.slug],
+      ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+    ]),
+  );
 
   return jsonResponse({ contract_id: updatedContract.id, status: "draft" });
 });

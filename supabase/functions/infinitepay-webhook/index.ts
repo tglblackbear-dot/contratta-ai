@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { notifyOwner, ownerEmailShell } from "../_shared/notify.ts";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -58,6 +59,18 @@ Deno.serve(async (request) => {
       .insert({ user_id: order.user_id, credits: 1, updated_at: new Date().toISOString() });
     if (insertCreditError) return jsonResponse({ error: "Could not grant credit." }, 500);
   }
+
+  const { data: ownerProfile } = await admin.from("profiles").select("full_name").eq("id", order.user_id).maybeSingle();
+  await notifyOwner(
+    "Crédito liberado",
+    ownerEmailShell("Crédito liberado", [
+      ["Usuário", ownerProfile?.full_name || "—"],
+      ["Pagamento", `R$ ${(amount / 100).toFixed(2).replace(".", ",")}`],
+      ["Pedido", orderNsu],
+      ["Forma", typeof body.capture_method === "string" ? body.capture_method : "—"],
+      ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+    ]),
+  );
 
   return jsonResponse({ ok: true, credits_granted: true });
 });

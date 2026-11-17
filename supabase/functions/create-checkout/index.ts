@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { getAuthorizedUser, isResponse } from "../_shared/auth.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { notifyOwner, ownerEmailShell } from "../_shared/notify.ts";
 
 const AMOUNT_CENTS = 600;
 
@@ -91,6 +92,16 @@ Deno.serve(async (request) => {
   const checkoutUrl = [data?.url, data?.redirect_url, data?.checkout_url, data?.payment_url, data?.link]
     .find((value): value is string => typeof value === "string" && /^https?:\/\//.test(value));
   if (!checkoutUrl) return jsonResponse({ error: "A InfinitePay não devolveu o link de pagamento." }, 502);
+
+  await notifyOwner(
+    "Novo checkout iniciado",
+    ownerEmailShell("Checkout iniciado", [
+      ["Usuário", user.email ?? "—"],
+      ["Valor", `R$ ${(AMOUNT_CENTS / 100).toFixed(2).replace(".", ",")}`],
+      ["Pedido", orderNsu],
+      ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+    ]),
+  );
 
   return jsonResponse({ url: checkoutUrl, order_nsu: orderNsu });
 });

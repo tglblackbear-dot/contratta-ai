@@ -119,6 +119,8 @@ try {
     "PAYMENT_WEBHOOK_SECRET=$($cfg['PAYMENT_WEBHOOK_SECRET'])" `
     "INFINITEPAY_API_KEY=$($cfg['INFINITEPAY_API_KEY'])" `
     "INFINITEPAY_HANDLE=$($cfg['INFINITEPAY_HANDLE'])" `
+    "RESEND_API_KEY=$($cfg['RESEND_API_KEY'])" `
+    "OWNER_EMAIL=$($cfg['OWNER_EMAIL'])" `
     --yes
 
   Write-Host '== 4/7 Publicando Edge Functions =='

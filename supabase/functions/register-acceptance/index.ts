@@ -1,6 +1,7 @@
 import { z } from "npm:zod@4.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { notifyOwner, ownerEmailShell } from "../_shared/notify.ts";
 
 const requestSchema = z.object({
   action: z.enum(["lookup", "accept"]),
@@ -76,5 +77,14 @@ Deno.serve(async (request) => {
   if (error || !data?.signature_id) {
     return jsonResponse({ error: "This link has expired, was already used, or could not be accepted." }, 409);
   }
+  await notifyOwner(
+    "Aceite eletrônico registrado",
+    ownerEmailShell("Aceite registrado", [
+      ["Participante", data.participant_name],
+      ["Contrato", contract.title],
+      ["Data", new Date(data.accepted_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+    ]),
+  );
+
   return jsonResponse({ accepted: true, participant_name: data.participant_name, accepted_at: data.accepted_at });
 });

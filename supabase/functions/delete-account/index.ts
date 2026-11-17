@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { getAuthorizedUser, isResponse } from "../_shared/auth.ts";
 import { corsHeaders, jsonResponse } from "../_shared/cors.ts";
+import { notifyOwner, ownerEmailShell } from "../_shared/notify.ts";
 
 const privateBuckets = ["contract-documents", "contract-attachments", "ocr-private"];
 const pageSize = 100;
@@ -77,5 +78,13 @@ Deno.serve(async (request) => {
   if (error) {
     return jsonResponse({ error: "Private files were removed, but the account could not be deleted. Retry the request or contact support." }, 500);
   }
+  await notifyOwner(
+    "Conta excluída",
+    ownerEmailShell("Conta excluída", [
+      ["Usuário", auth.user.email ?? "—"],
+      ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+    ]),
+  );
+
   return jsonResponse({ deleted: true });
 });
