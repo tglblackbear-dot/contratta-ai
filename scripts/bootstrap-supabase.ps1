@@ -125,7 +125,7 @@ $authConfig = @{
   site_url = $cfg['PUBLIC_APP_URL']
   uri_allow_list = $cfg['PUBLIC_APP_URL'].TrimEnd('/') + '/*'
 } | ConvertTo-Json -Compress
-Invoke-RestMethod -Uri "$projectBase/auth/config" -Headers $headers -Method Patch -ContentType 'application/json' -Body $authConfig -TimeoutSec 60 | Out-Null
+Invoke-RestMethod -Uri "$projectBase/config/auth" -Headers $headers -Method Patch -ContentType 'application/json' -Body $authConfig -TimeoutSec 60 | Out-Null
 Write-Host 'Auth URLs configuradas'
 
 $dispatchUrl = 'https://' + $projectRef + '.supabase.co/functions/v1/notification-dispatch'
