@@ -2,7 +2,8 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { useAuth } from "./AuthProvider";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
 import { loginSchema, registerSchema, emailSchema } from "../../lib/validators";
@@ -53,6 +54,27 @@ function AuthLayout({ children, eyebrow, title, description }: {
   );
 }
 
+function PasswordInput({ label, placeholder, autoComplete, registration, error }: {
+  label: string;
+  placeholder: string;
+  autoComplete: string;
+  registration: UseFormRegisterReturn;
+  error?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <label className="field-label">{label}
+      <span className="password-field">
+        <input className="text-input" type={visible ? "text" : "password"} autoComplete={autoComplete} placeholder={placeholder} {...registration} />
+        <button className="password-toggle" type="button" onClick={() => setVisible((current) => !current)} aria-label={visible ? "Ocultar senha" : "Mostrar senha"} aria-pressed={visible}>
+          {visible ? <EyeOff size={17} /> : <Eye size={17} />}
+        </button>
+      </span>
+      {error && <span className="field-error">{error}</span>}
+    </label>
+  );
+}
+
 export function LoginPage() {
   const { user, loading } = useAuth();
   const [message, setMessage] = useState("");
@@ -80,10 +102,7 @@ export function LoginPage() {
           <input className="text-input" type="email" autoComplete="email" placeholder="voce@exemplo.com" {...register("email")} />
           {errors.email && <span className="field-error">{errors.email.message}</span>}
         </label>
-        <label className="field-label">Senha
-          <input className="text-input" type="password" autoComplete="current-password" placeholder="Sua senha" {...register("password")} />
-          {errors.password && <span className="field-error">{errors.password.message}</span>}
-        </label>
+        <PasswordInput label="Senha" autoComplete="current-password" placeholder="Sua senha" registration={register("password")} error={errors.password?.message} />
         <div className="form-inline"><span /> <Link to="/forgot-password">Esqueci minha senha</Link></div>
         {errorMessage && <p className="form-message error-message" role="alert">{errorMessage}</p>}
         {message && <p className="form-message success-message" role="status">{message}</p>}
@@ -143,14 +162,8 @@ export function RegisterPage() {
           <input className="text-input" type="email" autoComplete="email" placeholder="voce@exemplo.com" {...register("email")} />
           {errors.email && <span className="field-error">{errors.email.message}</span>}
         </label>
-        <label className="field-label">Senha
-          <input className="text-input" type="password" autoComplete="new-password" placeholder="Pelo menos 8 caracteres" {...register("password")} />
-          {errors.password && <span className="field-error">{errors.password.message}</span>}
-        </label>
-        <label className="field-label">Confirme sua senha
-          <input className="text-input" type="password" autoComplete="new-password" placeholder="Digite novamente" {...register("confirmPassword")} />
-          {errors.confirmPassword && <span className="field-error">{errors.confirmPassword.message}</span>}
-        </label>
+        <PasswordInput label="Senha" autoComplete="new-password" placeholder="Pelo menos 8 caracteres" registration={register("password")} error={errors.password?.message} />
+        <PasswordInput label="Confirme sua senha" autoComplete="new-password" placeholder="Digite novamente" registration={register("confirmPassword")} error={errors.confirmPassword?.message} />
         <label className="consent-check">
           <input type="checkbox" aria-invalid={Boolean(errors.acceptTerms)} {...register("acceptTerms")} />
           <span>Li e aceito os <Link to="/terms" target="_blank" rel="noreferrer">termos de uso</Link> e a <Link to="/privacy" target="_blank" rel="noreferrer">política de privacidade</Link>.</span>

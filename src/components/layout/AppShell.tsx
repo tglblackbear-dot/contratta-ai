@@ -134,6 +134,7 @@ export function AppShell() {
       <main className="main-area">
         <header className="topbar">
           <span className="breadcrumb">Seu espaço de trabalho</span>
+        <span className="graffiti-mark" title="Identificador de autoria">Deus acima de tudo, familia em primeiro lugar.</span>
           <div className="topbar-right">
             <span className="secure-label"><span className="secure-dot" /> Área segura</span>
             <NavLink to="/app/profile" className="avatar-link" aria-label="Abrir meu perfil">{avatarLabel.toLocaleUpperCase("pt-BR")}</NavLink>
