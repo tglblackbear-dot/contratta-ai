@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Bell,
   CreditCard,
+  Download,
   FilePlus2,
   FileText,
   LayoutDashboard,
@@ -19,6 +20,11 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { clearOfflineUserData } from "../../lib/offlineInterviews";
 
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
+
 const navigation = [
   { to: "/app/dashboard", label: "Início", icon: LayoutDashboard, end: true },
   { to: "/app/new-contract", label: "Criar contrato", icon: FilePlus2 },
@@ -33,9 +39,40 @@ const navigation = [
 
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const onBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    const onInstalled = () => {
+      setInstallPrompt(null);
+      setShowInstallHelp(false);
+    };
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  async function handleInstall() {
+    if (!installPrompt) {
+      setShowInstallHelp((current) => !current);
+      return;
+    }
+    await installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    if (choice.outcome === "accepted") setInstallPrompt(null);
+    setShowInstallHelp(false);
+  }
+
   const notificationsQuery = useQuery({
     queryKey: ["notifications-unread", user?.id],
     enabled: Boolean(user && supabase),
@@ -136,9 +173,17 @@ export function AppShell() {
           <span className="breadcrumb">Seu espaço de trabalho</span>
         <span className="graffiti-mark" title="Identificador de autoria">Deus acima de tudo, familia em primeiro lugar.</span>
           <div className="topbar-right">
+            <button className="button button-secondary install-button" type="button" onClick={() => void handleInstall()} title="Instalar o Contratta AI no seu dispositivo">
+              <Download size={15} /> Instalar app
+            </button>
             <span className="secure-label"><span className="secure-dot" /> Área segura</span>
             <NavLink to="/app/profile" className="avatar-link" aria-label="Abrir meu perfil">{avatarLabel.toLocaleUpperCase("pt-BR")}</NavLink>
           </div>
+          {showInstallHelp && <div className="install-help" role="status">
+            <b>Instalar o Contratta AI</b>
+            <p>No Chrome ou Edge: clique no menu <strong>⋮</strong> e em <strong>Instalar aplicativo</strong>.<br />No iPhone (Safari): toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.<br />No Android: o navegador pode mostrar automaticamente a opção “Instalar app”.</p>
+            <button className="button button-secondary" type="button" onClick={() => setShowInstallHelp(false)}>Entendi</button>
+          </div>}
         </header>
         <div className="page-content"><Outlet /></div>
       </main>
