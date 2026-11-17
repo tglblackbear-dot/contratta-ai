@@ -108,12 +108,13 @@ try {
     "VAPID_PUBLIC_KEY=$($cfg['VAPID_PUBLIC_KEY'])" `
     "VAPID_PRIVATE_KEY=$($cfg['VAPID_PRIVATE_KEY'])" `
     "VAPID_SUBJECT=$($cfg['VAPID_SUBJECT'])" `
-    "NOTIFICATION_DISPATCH_SECRET=$($cfg['NOTIFICATION_DISPATCH_SECRET'])"
+    "NOTIFICATION_DISPATCH_SECRET=$($cfg['NOTIFICATION_DISPATCH_SECRET'])" `
+    --yes
 
   Write-Host '== 4/7 Publicando Edge Functions =='
   foreach ($fn in $functions) {
     Write-Host "Publicando $fn"
-    & npx.cmd --yes supabase functions deploy $fn
+    & npx.cmd --yes supabase functions deploy $fn --yes
   }
 } finally {
   Pop-Location
@@ -124,19 +125,21 @@ $authConfig = @{
   site_url = $cfg['PUBLIC_APP_URL']
   uri_allow_list = $cfg['PUBLIC_APP_URL'].TrimEnd('/') + '/*'
 } | ConvertTo-Json -Compress
-$authBodyPath = Join-Path $env:TEMP 'opencode\contratta-auth-config.json'
-[IO.File]::WriteAllText($authBodyPath, $authConfig)
-gh api -X PATCH "$projectBase/auth/config" --input $authBodyPath --jq '.site_url' | Out-Null
+Invoke-RestMethod -Uri "$projectBase/auth/config" -Headers $headers -Method Patch -ContentType 'application/json' -Body $authConfig -TimeoutSec 60 | Out-Null
 Write-Host 'Auth URLs configuradas'
 
 $dispatchUrl = 'https://' + $projectRef + '.supabase.co/functions/v1/notification-dispatch'
 $pushSqlTemplate = @'
 create extension if not exists pg_cron with schema extensions;
 create extension if not exists pg_net with schema extensions;
-select vault.create_secret('{0}', 'contratta_dispatch_url', 'URL do dispatch de notificacoes');
-select vault.create_secret('{1}', 'contratta_dispatch_secret', 'Segredo do dispatch de notificacoes');
-do $$
+do $do$
 begin
+  if not exists (select 1 from vault.decrypted_secrets where name = 'contratta_dispatch_url') then
+    perform vault.create_secret('{0}', 'contratta_dispatch_url', 'URL do dispatch de notificacoes');
+  end if;
+  if not exists (select 1 from vault.decrypted_secrets where name = 'contratta_dispatch_secret') then
+    perform vault.create_secret('{1}', 'contratta_dispatch_secret', 'Segredo do dispatch de notificacoes');
+  end if;
   begin
     perform cron.unschedule('contratta-notification-dispatch');
   exception when others then null;
@@ -144,7 +147,7 @@ begin
   perform cron.schedule(
     'contratta-notification-dispatch',
     '* * * * *',
-    $$
+    $cron$
     select net.http_post(
       url := (select decrypted_secret from vault.decrypted_secrets where name = 'contratta_dispatch_url'),
       headers := jsonb_build_object(
@@ -154,10 +157,10 @@ begin
       ),
       body := '{{}}'::jsonb
     );
-    $$
+    $cron$
   );
 end
-$$;
+$do$;
 '@
 $pushSql = $pushSqlTemplate -f $dispatchUrl, $cfg['NOTIFICATION_DISPATCH_SECRET']
 try {
