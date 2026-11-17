@@ -75,6 +75,7 @@ export function DashboardPage() {
           <Link className="button button-primary" to="/app/billing"><Plus size={16} /> Recarregar créditos</Link>
         </div>
       } />
+      <img className="mobile-graffiti" src={`${import.meta.env.BASE_URL}graffiti-assinatura.png`} alt="Deus acima de tudo, familia em primeiro lugar" />
       <section className="credit-info-panel">
         <span className="credit-info-icon"><CreditCard size={22} /></span>
         <div className="credit-info-copy">
