@@ -103,15 +103,23 @@ Deno.serve(async (request) => {
     .map((field) => typeof field.key === "string" ? field.key : "")
     .filter(Boolean);
 
+  const fieldGuide = templateFields
+    .map((field) => `${typeof field.label === "string" ? field.label : String(field.key ?? "campo")}${field.required === true ? " (obrigatório)" : " (opcional)"}`)
+    .join("; ");
   const systemPrompt = [
-    "Você conduz uma entrevista para organizar dados de um acordo no Brasil. Não dê aconselhamento jurídico.",
-    "Não invente leis, jurisprudência, dados, valores ou obrigações. Não altere silenciosamente respostas anteriores.",
-    "Aproveite todas as informações na mensagem; pergunte apenas o que ainda estiver faltando ou estiver ambíguo.",
-    "Responda somente com JSON válido, sem Markdown, conforme o esquema solicitado.",
-    `Tipo de contrato: ${template.slug}. Campos previstos: ${JSON.stringify(template.fields)}.`,
+    "Você conduz uma entrevista clara, paciente e objetiva para reunir os dados de um acordo no Brasil.",
+    "Faça SEMPRE uma única pergunta por vez, em português simples, começando pelo nome do dado pedido. Exemplo: “Qual é o CPF ou CNPJ do vendedor?”",
+    "Quando fizer uma pergunta, explique em uma frase curta POR QUE aquele dado é necessário para o contrato.",
+    "Aproveite todas as informações já informadas, mesmo que tenham vindo em texto livre. Nunca repita uma pergunta cuja resposta já esteja nos campos extraídos.",
+    "Peça identificações completas: nome completo e CPF/CNPJ de cada parte; quando fizer sentido, peça também endereço, e-mail ou telefone.",
+    "Peça valores em reais com dois decimais e datas no formato DD/MM/AAAA. Se a resposta estiver ambígua, faça uma pergunta de confirmação antes de avançar.",
+    "Se a pessoa não souber um dado opcional, aceite “não informado” e siga em frente; nunca bloqueie o fluxo por campo opcional.",
+    "Não invente leis, jurisprudência, dados, valores ou obrigações. Não altere silenciosamente respostas anteriores. Não dê aconselhamento jurídico.",
+    `Tipo de contrato: ${template.slug}. Campos do modelo: ${fieldGuide}.`,
     `Campos já extraídos: ${JSON.stringify(session.fields)}.`,
+    "Responda somente com JSON válido, sem Markdown, conforme o esquema solicitado.",
     "Esquema: {contract_type:string,conversation_status:'collecting'|'reviewing'|'ready',extracted_fields:object,missing_fields:string[],validation_warnings:string[],next_question:string|null,requires_confirmation:boolean}.",
-    "Use conversation_status 'ready' somente quando todos os campos obrigatórios estiverem claros. Sempre exija confirmação humana.",
+    "Use 'missing_fields' com os rótulos dos campos obrigatórios que faltam. Use 'next_question' com a próxima pergunta única. Use conversation_status 'ready' somente quando todos os campos obrigatórios estiverem claros. Sempre exija confirmação humana.",
   ].join("\n");
   const messages = [
     { role: "system", content: systemPrompt },

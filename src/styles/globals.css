@@ -397,6 +397,46 @@ a { color: inherit; text-decoration: none; }
 .voice-listening { animation: voice-pulse 1.4s ease-in-out infinite; }
 .voice-notice { padding: 8px 16px; margin: 0; color: #92400e; background: #fffbeb; font-size: 9px; }
 .chat-disclaimer { padding: 0 16px 13px; margin: 0; color: #94a3b8; text-align: center; font-size: 8px; line-height: 1.5; }
+
+/* Entrevista: leitura confortavel e perguntas mais claras */
+.new-contract-form .field-label, .interview-checklist h3 { font-size: 14px; }
+.new-contract-form .select-input, .new-contract-form .text-input { min-height: 48px; font-size: 15px; }
+.new-contract-form .button { font-size: 14px; min-height: 46px; }
+.selected-template h2 { font-size: 16px; }
+.selected-template p { font-size: 13px; line-height: 1.6; }
+.selected-template small { font-size: 11px; }
+.interview-intro-card > p { font-size: 12px; line-height: 1.7; }
+.interview-intro-card .intro-step p b { font-size: 12px; }
+.interview-intro-card .intro-step small { font-size: 11px; }
+.interview-intro-card .legal-note { font-size: 10px; line-height: 1.6; }
+.interview-progress > div:first-child { font-size: 12px; }
+.interview-progress small { font-size: 11px; }
+.interview-checklist { max-width: 760px; margin: 0 auto 16px; padding: 14px 17px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+.interview-checklist h3 { margin: 0 0 10px; color: #1e3a5f; }
+.interview-checklist ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 16px; padding: 0; margin: 0; list-style: none; }
+.interview-checklist li { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; line-height: 1.5; }
+.interview-checklist li span:first-child { flex: 0 0 auto; font-weight: 700; }
+.interview-checklist .check-done { color: #15803d; }
+.interview-checklist .check-pending { color: #64748b; }
+.chat-heading b { font-size: 14px; }
+.chat-heading small { font-size: 11px; line-height: 1.5; }
+.chat-secure { font-size: 11px; }
+.chat-history { gap: 18px; }
+.message-bubble { padding: 13px 15px; }
+.message-bubble p { font-size: 15px; line-height: 1.65; }
+.message-bubble time { font-size: 10px; }
+.assistant-reply { display: grid; gap: 6px; }
+.assistant-question-label { color: #1d4ed8; font-size: 11px; letter-spacing: .4px; text-transform: uppercase; }
+.assistant-pending { color: #64748b; font-size: 12px; line-height: 1.5; }
+.interview-warning { color: #b45309 !important; font-size: 12px !important; line-height: 1.5; }
+.review-summary-title b { font-size: 14px; }
+.review-summary-title span { font-size: 11px; line-height: 1.5; }
+.review-summary dt { font-size: 11px; }
+.review-summary dd { font-size: 13px; }
+.review-summary .button { min-height: 42px; font-size: 12px; }
+.chat-composer textarea { min-height: 64px; font-size: 15px; line-height: 1.6; }
+.composer-foot small { font-size: 11px; }
+.chat-disclaimer { font-size: 10px; line-height: 1.6; }
 @keyframes voice-pulse { 50% { box-shadow: 0 0 0 4px rgba(37,99,235,.12); } }
 
 @media (max-width: 1050px) {

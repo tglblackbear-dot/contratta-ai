@@ -470,6 +470,19 @@ export function InterviewPage() {
               <div className="progress-track"><span style={{ width: `${Math.min(100, Math.max(0, session.progress))}%` }} /></div>
               <small>{session.missing_fields.length ? `${session.missing_fields.length} informações pendentes` : "Informações necessárias reunidas — revise antes de continuar."}</small>
             </section>
+            {Array.isArray(templateQuery.data.fields) && <section className="interview-checklist" aria-label="Dados do contrato">
+              <h3>Dados do contrato</h3>
+              <ul>
+                {templateQuery.data.fields.filter((field) => typeof field === "object" && field !== null && "key" in field).map((field) => {
+                  const item = field as { key: string; label?: string; required?: boolean };
+                  const filled = Object.prototype.hasOwnProperty.call(session.fields, item.key) && Boolean((session.fields as Record<string, unknown>)[item.key]);
+                  return <li key={item.key} className={filled ? "check-done" : "check-pending"}>
+                    <span aria-hidden="true">{filled ? "✓" : "○"}</span>
+                    <span>{item.label ?? item.key.replaceAll("_", " ")}{item.required ? " (obrigatório)" : " (opcional)"}</span>
+                  </li>;
+                })}
+              </ul>
+            </section>}
             {!isOnline && <p className="offline-banner" role="status">{offlineReady ? "Sem conexão. Esta entrevista está disponível neste dispositivo; novas respostas serão sincronizadas quando você voltar a ficar online." : "Sem conexão e sem uma cópia local desta entrevista. Conecte-se à internet para carregá-la."}</p>}
             {offlineMessage && <div className="offline-message" role="status"><span>{offlineMessage}</span>{isOnline && queuedMessages.length > 0 && <button type="button" onClick={() => void flushQueued()}>Tentar sincronizar</button>}</div>}
             <section className="panel chat-panel" aria-label="Entrevista do contrato">
@@ -480,7 +493,7 @@ export function InterviewPage() {
                   <div className={`chat-message message-${message.role}`} key={message.id}>
                     {message.role === "assistant" && <span className="message-avatar"><Sparkles size={13} /></span>}
                     <div className="message-bubble">
-                      {message.role === "assistant" && message.content.startsWith("{") ? <AssistantReply content={message.content} /> : <p>{message.content}</p>}
+                      {message.role === "assistant" && message.content.startsWith("{") ? <AssistantReply content={message.content} fields={templateQuery.data.fields} /> : <p>{message.content}</p>}
                       <time>{new Date(message.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</time>
                     </div>
                   </div>
@@ -522,7 +535,19 @@ export function InterviewPage() {
   );
 }
 
-function AssistantReply({ content }: { content: string }) {
+function fieldLabels(fields: unknown): Record<string, string> {
+  const labels: Record<string, string> = {};
+  if (!Array.isArray(fields)) return labels;
+  for (const field of fields) {
+    if (typeof field !== "object" || field === null) continue;
+    const key = (field as { key?: unknown }).key;
+    const label = (field as { label?: unknown }).label;
+    if (typeof key === "string" && typeof label === "string") labels[key] = label;
+  }
+  return labels;
+}
+
+function AssistantReply({ content, fields }: { content: string; fields: unknown }) {
   let decoded: unknown;
   try {
     decoded = JSON.parse(content);
@@ -531,10 +556,14 @@ function AssistantReply({ content }: { content: string }) {
   }
   const parsed = interviewResponseSchema.safeParse(decoded);
   if (!parsed.success) return <p>As informações foram analisadas. Confira os dados reunidos antes de continuar.</p>;
+  const labels = fieldLabels(fields);
+  const pending = parsed.data.missing_fields.map((key) => labels[key] ?? key.replaceAll("_", " "));
   return (
-    <>
+    <div className="assistant-reply">
+      <strong className="assistant-question-label">Próxima pergunta</strong>
       <p>{parsed.data.next_question ?? "As informações necessárias foram reunidas. Revise o resumo antes de preparar o rascunho."}</p>
+      {pending.length > 0 && <small className="assistant-pending">Ainda precisamos de: {pending.join(", ")}.</small>}
       {parsed.data.validation_warnings.map((warning) => <p className="interview-warning" key={warning}>{warning}</p>)}
-    </>
+    </div>
   );
 }
