@@ -53,18 +53,35 @@ if ($project.name -ne 'contratta-ai' -or $project.region -ne 'sa-east-1') {
 }
 $rows = Invoke-Sql "select count(*)::int as n from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'"
 $tableCount = if ($rows -is [array] -and $rows.Count -gt 0) { [int]$rows[0].n } else { 0 }
-if ($tableCount -gt 0) {
-  throw "O banco ja tem $tableCount tabelas publicas. Abortando para nao aplicar migrations duplicadas."
+if ($tableCount -eq 0) {
+  throw "Banco vazio. Aplique as migrations 001-004 antes deste bootstrap."
 }
 Write-Host "Projeto confirmado: $($project.name) ($($project.region)); tabelas publicas: $tableCount"
 
-Write-Host '== 2/7 Aplicando migrations 001-009 =='
-Push-Location $repo
-try {
-  & npx.cmd --yes supabase link --project-ref $projectRef
-  & npx.cmd --yes supabase db push
-} finally {
-  Pop-Location
+function Test-Marker([string]$sql) {
+  $result = Invoke-Sql $sql
+  if ($result -is [array] -and $result.Count -gt 0) { return ([int]$result[0].n -gt 0) }
+  return $false
+}
+
+$markers = @(
+  @{ File = '005_initial_contracts.sql'; Sql = "select count(*)::int as n from public.contract_categories" },
+  @{ File = '006_atomic_interview_start.sql'; Sql = "select count(*)::int as n from pg_proc where pronamespace = 'public'::regnamespace and proname = 'start_interview_session'" },
+  @{ File = '007_web_push_notifications.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'push_subscriptions'" },
+  @{ File = '008_consent_records.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'consent_records'" },
+  @{ File = '009_unique_installment_receipt.sql'; Sql = "select count(*)::int as n from pg_indexes where schemaname = 'public' and indexname = 'payment_receipts_installment_unique_idx'" }
+)
+
+Write-Host '== 2/7 Aplicando migrations pendentes (005-009) =='
+foreach ($migration in $markers) {
+  if (Test-Marker $migration.Sql) {
+    Write-Host "Ja aplicada: $($migration.File)"
+    continue
+  }
+  $sqlPath = Join-Path $repo "supabase\migrations\$($migration.File)"
+  $sqlText = [IO.File]::ReadAllText($sqlPath, [Text.Encoding]::UTF8)
+  Invoke-Sql $sqlText | Out-Null
+  Write-Host "Aplicada: $($migration.File)"
 }
 
 Write-Host '== 3/7 Configurando secrets das Edge Functions =='
