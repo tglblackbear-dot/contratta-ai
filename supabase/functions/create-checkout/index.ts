@@ -32,18 +32,39 @@ Deno.serve(async (request) => {
   });
   if (orderError) return jsonResponse({ error: "Não foi possível registrar o pedido." }, 500);
 
+  const { data: profile } = await admin.from("profiles")
+    .select("full_name,phone,document").eq("id", user.id).maybeSingle();
+
+  const normalizePhone = (value: string | null | undefined) => {
+    if (!value) return undefined;
+    const digits = value.replace(/\D/g, "");
+    if (digits.length < 10) return undefined;
+    if (digits.startsWith("55") && digits.length >= 12) return `+${digits}`;
+    return `+55${digits}`;
+  };
+  const rawPhone = typeof profile?.phone === "string" ? profile.phone : typeof user.user_metadata?.phone === "string" ? user.user_metadata.phone : undefined;
+  const customer: Record<string, string> = {
+    name: [profile?.full_name, user.user_metadata?.full_name]
+      .find((value): value is string => typeof value === "string" && value.trim().length > 0) ?? user.email ?? "Cliente",
+    email: user.email ?? "",
+  };
+  const phone = normalizePhone(rawPhone);
+  if (phone) customer.phone_number = phone;
+
   const webhookUrl = `${supabaseUrl}/functions/v1/infinitepay-webhook?token=${encodeURIComponent(webhookSecret)}`;
   const payload: Record<string, unknown> = {
     items: [{ quantity: 1, price: AMOUNT_CENTS, description: "1 crédito Contratta AI - contrato avulso" }],
     order_nsu: orderNsu,
     redirect_url: `${appUrl.replace(/\/$/, "")}/billing?payment=success`,
-    customer: {
-      name: typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : user.email ?? "Cliente",
-      email: user.email ?? "",
-    },
+    customer,
   };
   if (apiKey) {
     payload.webhook = { url: webhookUrl, events: ["paid", "refunded", "canceled"] };
+    payload.options = {
+      require_delivery_address: false,
+      single_payment: true,
+      payment_methods_enabled: ["credit_card", "pix"],
+    };
   } else {
     if (!handle) return jsonResponse({ error: "InfinitePay ainda não foi configurado." }, 503);
     payload.handle = handle.replace(/^\$/, "");
