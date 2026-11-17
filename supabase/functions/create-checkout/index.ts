@@ -32,20 +32,23 @@ Deno.serve(async (request) => {
   });
   if (orderError) return jsonResponse({ error: "Não foi possível registrar o pedido." }, 500);
 
+  const webhookUrl = `${supabaseUrl}/functions/v1/infinitepay-webhook?token=${encodeURIComponent(webhookSecret)}`;
   const payload: Record<string, unknown> = {
     items: [{ quantity: 1, price: AMOUNT_CENTS, description: "1 crédito Contratta AI - contrato avulso" }],
     order_nsu: orderNsu,
     redirect_url: `${appUrl.replace(/\/$/, "")}/billing?payment=success`,
-    webhook: {
-      url: `${supabaseUrl}/functions/v1/infinitepay-webhook?token=${encodeURIComponent(webhookSecret)}`,
-      events: ["paid", "refunded", "canceled"],
-    },
     customer: {
       name: typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name : user.email ?? "Cliente",
       email: user.email ?? "",
     },
   };
-  if (!apiKey && handle) payload.handle = handle.replace(/^\$/, "");
+  if (apiKey) {
+    payload.webhook = { url: webhookUrl, events: ["paid", "refunded", "canceled"] };
+  } else {
+    if (!handle) return jsonResponse({ error: "InfinitePay ainda não foi configurado." }, 503);
+    payload.handle = handle.replace(/^\$/, "");
+    payload.webhook_url = webhookUrl;
+  }
 
   let providerResponse: Response;
   try {
