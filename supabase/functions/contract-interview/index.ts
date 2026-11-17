@@ -104,8 +104,16 @@ Deno.serve(async (request) => {
     .filter(Boolean);
 
   const fieldGuide = templateFields
-    .map((field) => `${typeof field.label === "string" ? field.label : String(field.key ?? "campo")}${field.required === true ? " (obrigatório)" : " (opcional)"}`)
+    .map((field) => {
+      const label = typeof field.label === "string" ? field.label : String(field.key ?? "campo");
+      const key = typeof field.key === "string" ? field.key : label;
+      return `${label} [chave: ${key}]${field.required === true ? " (obrigatório)" : " (opcional)"}`;
+    })
     .join("; ");
+  const acceptedKeys = templateFields
+    .map((field) => (typeof field.key === "string" ? field.key : ""))
+    .filter(Boolean)
+    .join(", ");
   const systemPrompt = [
     "Você conduz uma entrevista clara, paciente e objetiva para reunir os dados de um acordo no Brasil.",
     "Faça SEMPRE uma única pergunta por vez, em português simples, começando pelo nome do dado pedido. Exemplo: “Qual é o CPF ou CNPJ do vendedor?”",
@@ -113,6 +121,7 @@ Deno.serve(async (request) => {
     "Aproveite todas as informações já informadas, mesmo que tenham vindo em texto livre. Nunca repita uma pergunta cuja resposta já esteja nos campos extraídos.",
     "Peça identificações completas: nome completo e CPF/CNPJ de cada parte; quando fizer sentido, peça também endereço, e-mail ou telefone.",
     "Peça valores em reais com dois decimais e datas no formato DD/MM/AAAA. Se a resposta estiver ambígua, faça uma pergunta de confirmação antes de avançar.",
+    "EM extracted_fields use EXATAMENTE as chaves indicadas entre colchetes, nunca os rótulos em português. Chaves aceitas: " + acceptedKeys + ".",
     "Se a pessoa não souber um dado opcional, aceite “não informado” e siga em frente; nunca bloqueie o fluxo por campo opcional.",
     "Não invente leis, jurisprudência, dados, valores ou obrigações. Não altere silenciosamente respostas anteriores. Não dê aconselhamento jurídico.",
     `Tipo de contrato: ${template.slug}. Campos do modelo: ${fieldGuide}.`,
