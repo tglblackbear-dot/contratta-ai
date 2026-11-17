@@ -84,18 +84,6 @@ foreach ($migration in $markers) {
   Write-Host "Aplicada: $($migration.File)"
 }
 
-Write-Host '== 3/7 Configurando secrets das Edge Functions =='
-& npx.cmd --yes supabase secrets set `
-  "AI_API_URL=$($cfg['AI_API_URL'])" `
-  "AI_API_KEY=$($cfg['AI_API_KEY'])" `
-  "AI_MODEL=$($cfg['AI_MODEL'])" `
-  "PUBLIC_APP_URL=$($cfg['PUBLIC_APP_URL'])" `
-  "VAPID_PUBLIC_KEY=$($cfg['VAPID_PUBLIC_KEY'])" `
-  "VAPID_PRIVATE_KEY=$($cfg['VAPID_PRIVATE_KEY'])" `
-  "VAPID_SUBJECT=$($cfg['VAPID_SUBJECT'])" `
-  "NOTIFICATION_DISPATCH_SECRET=$($cfg['NOTIFICATION_DISPATCH_SECRET'])"
-
-Write-Host '== 4/7 Publicando Edge Functions =='
 $functions = @(
   'contract-interview',
   'document-ocr',
@@ -106,8 +94,23 @@ $functions = @(
   'delete-account',
   'notification-dispatch'
 )
+
 Push-Location $repo
 try {
+  & npx.cmd --yes supabase link --project-ref $projectRef
+
+  Write-Host '== 3/7 Configurando secrets das Edge Functions =='
+  & npx.cmd --yes supabase secrets set `
+    "AI_API_URL=$($cfg['AI_API_URL'])" `
+    "AI_API_KEY=$($cfg['AI_API_KEY'])" `
+    "AI_MODEL=$($cfg['AI_MODEL'])" `
+    "PUBLIC_APP_URL=$($cfg['PUBLIC_APP_URL'])" `
+    "VAPID_PUBLIC_KEY=$($cfg['VAPID_PUBLIC_KEY'])" `
+    "VAPID_PRIVATE_KEY=$($cfg['VAPID_PRIVATE_KEY'])" `
+    "VAPID_SUBJECT=$($cfg['VAPID_SUBJECT'])" `
+    "NOTIFICATION_DISPATCH_SECRET=$($cfg['NOTIFICATION_DISPATCH_SECRET'])"
+
+  Write-Host '== 4/7 Publicando Edge Functions =='
   foreach ($fn in $functions) {
     Write-Host "Publicando $fn"
     & npx.cmd --yes supabase functions deploy $fn
@@ -149,7 +152,7 @@ begin
         'x-notification-dispatch-secret',
         (select decrypted_secret from vault.decrypted_secrets where name = 'contratta_dispatch_secret')
       ),
-      body := '{}'::jsonb
+      body := '{{}}'::jsonb
     );
     $$
   );
