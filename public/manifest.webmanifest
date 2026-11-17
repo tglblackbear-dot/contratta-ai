@@ -1,0 +1,20 @@
+{
+  "name": "Contratta AI",
+  "short_name": "Contratta",
+  "description": "Contratos inteligentes. Simples como uma conversa.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#14243a",
+  "x-authorship-identifier": "Deus acima de tudo, familia em primeiro lugar",
+  "x-authorship-sha256": "f6806b2315ccad2a18e03d1271bbb43576a9cc18429d1fd0751c439e90e7c7f1",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
