@@ -69,7 +69,28 @@ export function DashboardPage() {
 
   return (
     <>
-      <PageTitle eyebrow="SEU ESPAÇO DE TRABALHO" title={`Olá, ${displayName}.`} description="Vamos formalizar um novo acordo?" />
+      <PageTitle eyebrow="SEU ESPAÇO DE TRABALHO" title={`Olá, ${displayName}.`} description="Vamos formalizar um novo acordo?" action={
+        <div className="header-credit-box">
+          <div className="header-credit-count"><span>Créditos disponíveis</span><strong>{credits}</strong></div>
+          <Link className="button button-primary" to="/app/billing"><Plus size={16} /> Recarregar créditos</Link>
+        </div>
+      } />
+      <section className="credit-info-panel">
+        <span className="credit-info-icon"><CreditCard size={22} /></span>
+        <div className="credit-info-copy">
+          <h2>Como funcionam os créditos</h2>
+          <p><strong>1 contrato = 1 crédito.</strong> Cada crédito custa <strong>R$ 6,00</strong> e pode ser recarregado quando quiser.</p>
+          <ul>
+            <li>O pagamento é feito com segurança pela InfinitePay (cartão ou Pix).</li>
+            <li>Assim que o pagamento é confirmado, o crédito aparece aqui automaticamente.</li>
+            <li>Seus créditos ficam disponíveis na sua conta até você usá-los.</li>
+          </ul>
+          <div className="credit-info-actions">
+            <Link className="button button-primary" to="/app/billing">Recarregar créditos <ArrowRight size={15} /></Link>
+            <a className="button button-secondary" href="https://wa.me/5571999383974" target="_blank" rel="noreferrer">Suporte técnico · Fabio.tec · (71) 99938-3974</a>
+          </div>
+        </div>
+      </section>
       <section className="welcome-panel">
         <div className="welcome-copy">
           <span className="welcome-kicker">CONTRATOS COM MAIS CLAREZA</span>

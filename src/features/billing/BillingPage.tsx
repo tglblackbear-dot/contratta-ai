@@ -73,6 +73,7 @@ export function BillingPage() {
           </button>
           {hasPaymentLink && <a className="text-link" href={paymentUrl} target="_blank" rel="noreferrer">Usar link manual</a>}
           <p className="billing-notice">Após a confirmação do pagamento, o crédito é liberado automaticamente. Se não aparecer, use o código enviado pelo operador.</p>
+          <p className="billing-notice">Suporte técnico: <a href="https://wa.me/5571999383974" target="_blank" rel="noreferrer">Fabio.tec · (71) 99938-3974 no WhatsApp</a></p>
         </section>
         <section className="panel billing-redeem">
           <span className="billing-icon"><KeyRound size={22} /></span>
