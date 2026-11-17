@@ -83,6 +83,8 @@ foreach ($migration in $markers) {
   Invoke-Sql $sqlText | Out-Null
   Write-Host "Aplicada: $($migration.File)"
 }
+Invoke-Sql "grant usage on schema public to service_role; grant all on all tables in schema public to service_role; grant all on all sequences in schema public to service_role; notify pgrst, 'reload schema';" | Out-Null
+Write-Host 'Permissoes do service_role e cache do PostgREST atualizados'
 
 $functions = @(
   'contract-interview',
