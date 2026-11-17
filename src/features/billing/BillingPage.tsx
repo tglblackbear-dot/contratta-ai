@@ -5,7 +5,7 @@ import { PageTitle } from "../../components/ui/Page";
 import { requireSupabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthProvider";
 
-const paymentUrl = import.meta.env.VITE_PICPAY_PAYMENT_URL?.trim() ?? "";
+const paymentUrl = import.meta.env.VITE_INFINITEPAY_PAYMENT_URL?.trim() ?? "";
 const hasPaymentLink = /^https?:\/\//i.test(paymentUrl);
 
 export function BillingPage() {
@@ -23,6 +23,18 @@ export function BillingPage() {
       if (error) throw new Error(error.message);
       return data?.credits ?? 0;
     },
+  });
+
+  const checkout = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await requireSupabase().functions.invoke("create-checkout");
+      if (error) throw new Error(error.message);
+      const url = data?.url;
+      if (typeof url !== "string" || !/^https?:\/\//.test(url)) throw new Error("A InfinitePay não devolveu um link válido.");
+      return url;
+    },
+    onSuccess: (url) => { window.location.assign(url); },
+    onError: (err: Error) => { setMessage(""); setError(err.message); },
   });
 
   const redeem = useMutation({
@@ -45,7 +57,7 @@ export function BillingPage() {
 
   return (
     <>
-      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Cada contrato gerado consome 1 crédito. Pague pelo PicPay e ative seu crédito com o código recebido." />
+      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Cada contrato gerado consome 1 crédito. Pague pelo InfinitePay e ative seu crédito com o código recebido." />
       <div className="billing-layout">
         <section className="panel billing-plan">
           <span className="billing-icon"><CreditCard size={22} /></span>
@@ -56,8 +68,11 @@ export function BillingPage() {
             <li><CheckCircle2 size={15} /> Minuta revisável antes de exportar</li>
             <li><CheckCircle2 size={15} /> PDF privado e link de aceite eletrônico</li>
           </ul>
-          {hasPaymentLink ? <a className="button button-primary" href={paymentUrl} target="_blank" rel="noreferrer">Pagar com PicPay</a>
-            : <p className="billing-notice">O link de pagamento ainda não foi configurado. Entre em contato com o operador para receber o código de ativação.</p>}
+          <button className="button button-primary" disabled={checkout.isPending} onClick={() => checkout.mutate()}>
+            {checkout.isPending ? "Abrindo checkout…" : "Pagar com InfinitePay"}
+          </button>
+          {hasPaymentLink && <a className="text-link" href={paymentUrl} target="_blank" rel="noreferrer">Usar link manual</a>}
+          <p className="billing-notice">Após a confirmação do pagamento, o crédito é liberado automaticamente. Se não aparecer, use o código enviado pelo operador.</p>
         </section>
         <section className="panel billing-redeem">
           <span className="billing-icon"><KeyRound size={22} /></span>

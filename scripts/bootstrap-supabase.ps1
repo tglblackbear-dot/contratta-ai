@@ -71,7 +71,8 @@ $markers = @(
   @{ File = '007_web_push_notifications.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'push_subscriptions'" },
   @{ File = '008_consent_records.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'consent_records'" },
   @{ File = '009_unique_installment_receipt.sql'; Sql = "select count(*)::int as n from pg_indexes where schemaname = 'public' and indexname = 'payment_receipts_installment_unique_idx'" },
-  @{ File = '010_contract_credits.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'user_credits'" }
+  @{ File = '010_contract_credits.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'user_credits'" },
+  @{ File = '011_payment_orders.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'payment_orders'" }
 )
 
 Write-Host '== 2/7 Aplicando migrations pendentes (005-009) =='
@@ -96,7 +97,9 @@ $functions = @(
   'create-signature-link',
   'register-acceptance',
   'delete-account',
-  'notification-dispatch'
+  'notification-dispatch',
+  'create-checkout',
+  'infinitepay-webhook'
 )
 
 Push-Location $repo
@@ -113,6 +116,9 @@ try {
     "VAPID_PRIVATE_KEY=$($cfg['VAPID_PRIVATE_KEY'])" `
     "VAPID_SUBJECT=$($cfg['VAPID_SUBJECT'])" `
     "NOTIFICATION_DISPATCH_SECRET=$($cfg['NOTIFICATION_DISPATCH_SECRET'])" `
+    "PAYMENT_WEBHOOK_SECRET=$($cfg['PAYMENT_WEBHOOK_SECRET'])" `
+    "INFINITEPAY_API_KEY=$($cfg['INFINITEPAY_API_KEY'])" `
+    "INFINITEPAY_HANDLE=$($cfg['INFINITEPAY_HANDLE'])" `
     --yes
 
   Write-Host '== 4/7 Publicando Edge Functions =='

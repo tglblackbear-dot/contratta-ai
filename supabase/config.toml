@@ -45,3 +45,9 @@ verify_jwt = true
 
 [functions.notification-dispatch]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.infinitepay-webhook]
+verify_jwt = false
