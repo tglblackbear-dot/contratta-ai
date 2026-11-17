@@ -469,6 +469,27 @@ a { color: inherit; text-decoration: none; }
 .nav-item.nav-active:hover > svg { color: #fff; background: rgba(255, 255, 255, .28); }
 .sidebar-footnote { color: #64748b; border-top-color: #dbe6f7; }
 .notification-count { background: linear-gradient(135deg, #ef4444, #f97316); }
+
+/* Cards clicáveis e ações dos contratos */
+.stat-card-link { color: inherit; text-decoration: none; transition: transform .16s, box-shadow .16s, border-color .16s; }
+.stat-card-link:hover { transform: translateY(-2px); border-color: #bfdbfe; box-shadow: 0 10px 22px rgba(37, 99, 235, .12); }
+.contract-row { position: relative; flex-wrap: wrap; }
+.contract-row-main-link { display: flex; flex: 1; min-width: 0; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
+.contract-row-main-link:hover .contract-row-main b { color: #2563eb; }
+.contract-row-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+.icon-button { display: inline-grid; width: 30px; height: 30px; place-items: center; border: 1px solid #e2e8f0; border-radius: 8px; color: #475569; background: #fff; cursor: pointer; transition: color .15s, background .15s, border-color .15s; }
+.icon-button:hover { color: #1d4ed8; border-color: #bfdbfe; background: #eff6ff; }
+.icon-button-danger:hover { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+.icon-button:disabled { opacity: .5; cursor: not-allowed; }
+.contract-row-editing { padding: 8px 3px; }
+.contract-edit-form { display: flex; width: 100%; align-items: center; gap: 8px; }
+.contract-edit-form .text-input { flex: 1; }
+.contract-confirm { display: flex; width: 100%; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 12px; border-radius: 9px; background: #fef2f2; color: #991b1b; font-size: 12px; line-height: 1.5; }
+.contract-confirm span { flex: 1; }
+.contract-confirm .button { min-height: 34px; font-size: 11px; }
+.button-danger { color: #fff; background: #dc2626; border-color: #dc2626; }
+.button-danger:hover { background: #b91c1c; }
+.button-danger:disabled { opacity: .6; cursor: not-allowed; }
 @keyframes voice-pulse { 50% { box-shadow: 0 0 0 4px rgba(37,99,235,.12); } }
 
 @media (max-width: 1050px) {

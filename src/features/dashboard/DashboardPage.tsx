@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Clock3, CreditCard, FilePlus2, FileText, Plus, UsersRound } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, Check, Clock3, CreditCard, FilePlus2, FileText, Pencil, Plus, Trash2, UsersRound, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { PageTitle, QueryState, EmptyState } from "../../components/ui/Page";
 import { requireSupabase } from "../../lib/supabase";
 import { useAuth } from "../auth/AuthProvider";
@@ -86,12 +86,12 @@ export function DashboardPage() {
 
       <QueryState loading={statsQuery.isLoading} error={statsQuery.error as Error | null}>
         <section className="stats-grid" aria-label="Resumo dos seus contratos">
-          <StatCard label="Créditos disponíveis" value={credits} icon={<CreditCard size={18} />} tone="violet" />
-          <StatCard label="Total de contratos" value={statsQuery.data?.total ?? 0} icon={<FileText size={18} />} tone="blue" />
-          <StatCard label="Em elaboração" value={statsQuery.data?.drafting ?? 0} icon={<Clock3 size={18} />} tone="amber" />
-          <StatCard label="Aguardando assinatura" value={statsQuery.data?.awaitingSignature ?? 0} icon={<UsersRound size={18} />} tone="violet" />
-          <StatCard label="Concluídos" value={statsQuery.data?.completed ?? 0} icon={<FileText size={18} />} tone="green" />
-          <StatCard label="Parcelas pendentes" value={statsQuery.data?.pendingInstallments ?? 0} icon={<Clock3 size={18} />} tone="amber" />
+          <StatCard label="Créditos disponíveis" value={credits} icon={<CreditCard size={18} />} tone="violet" to="/app/billing" />
+          <StatCard label="Total de contratos" value={statsQuery.data?.total ?? 0} icon={<FileText size={18} />} tone="blue" to="/app/contracts" />
+          <StatCard label="Em elaboração" value={statsQuery.data?.drafting ?? 0} icon={<Clock3 size={18} />} tone="amber" to="/app/contracts?status=draft,in_progress" />
+          <StatCard label="Aguardando assinatura" value={statsQuery.data?.awaitingSignature ?? 0} icon={<UsersRound size={18} />} tone="violet" to="/app/contracts?status=awaiting_signature" />
+          <StatCard label="Concluídos" value={statsQuery.data?.completed ?? 0} icon={<FileText size={18} />} tone="green" to="/app/contracts?status=completed" />
+          <StatCard label="Parcelas pendentes" value={statsQuery.data?.pendingInstallments ?? 0} icon={<Clock3 size={18} />} tone="amber" to="/app/finance" />
         </section>
       </QueryState>
 
@@ -126,11 +126,45 @@ export function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, icon, tone }: { label: string; value: number; icon: ReactNode; tone: string }) {
-  return <div className="stat-card"><span className={`stat-icon ${tone}`}>{icon}</span><div><strong>{value}</strong><span>{label}</span></div></div>;
+function StatCard({ label, value, icon, tone, to }: { label: string; value: number; icon: ReactNode; tone: string; to: string }) {
+  return <Link to={to} className="stat-card stat-card-link" title={label}><span className={`stat-icon ${tone}`}>{icon}</span><div><strong>{value}</strong><span>{label}</span></div></Link>;
 }
 
 export function ContractRow({ contract }: { contract: Pick<Contract, "id" | "title" | "contract_type" | "status" | "updated_at"> }) {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(contract.title);
+  const [confirming, setConfirming] = useState(false);
+
+  const saveTitle = useMutation({
+    mutationFn: async () => {
+      const { error } = await requireSupabase().from("contracts").update({ title: title.trim() }).eq("id", contract.id).eq("owner_id", user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setEditing(false);
+      void queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      void queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+    },
+  });
+
+  const remove = useMutation({
+    mutationFn: async () => {
+      const client = requireSupabase();
+      const prefix = `${user!.id}/${contract.id}`;
+      const { data: files } = await client.storage.from("contract-documents").list(prefix);
+      const paths = (files ?? []).map((file) => `${prefix}/${file.name}`);
+      if (paths.length) await client.storage.from("contract-documents").remove(paths);
+      const { error } = await client.from("contracts").delete().eq("id", contract.id).eq("owner_id", user!.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      void queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+    },
+  });
+
   const statusLabels: Record<Contract["status"], string> = {
     draft: "Rascunho",
     in_progress: "Em elaboração",
@@ -138,12 +172,34 @@ export function ContractRow({ contract }: { contract: Pick<Contract, "id" | "tit
     completed: "Concluído",
     cancelled: "Cancelado",
   };
+
+  if (editing) {
+    return <div className="contract-row contract-row-editing">
+      <form className="contract-edit-form" onSubmit={(event) => { event.preventDefault(); if (title.trim()) saveTitle.mutate(); }}>
+        <input className="text-input" value={title} onChange={(event) => setTitle(event.target.value)} autoFocus maxLength={200} aria-label="Nome do contrato" />
+        <button className="icon-button" type="submit" disabled={!title.trim() || saveTitle.isPending} title="Salvar"><Check size={16} /></button>
+        <button className="icon-button" type="button" onClick={() => { setTitle(contract.title); setEditing(false); }} title="Cancelar"><X size={16} /></button>
+      </form>
+    </div>;
+  }
+
   return (
-    <Link to={`/app/contracts/${contract.id}`} className="contract-row">
-      <span className="contract-file-icon"><FileText size={17} /></span>
-      <span className="contract-row-main"><b>{contract.title}</b><small>{contract.contract_type.replaceAll("_", " ")} · Atualizado {new Date(contract.updated_at).toLocaleDateString("pt-BR")}</small></span>
-      <span className={`status-pill status-${contract.status}`}>{statusLabels[contract.status]}</span>
-      <ArrowRight className="row-arrow" size={15} />
-    </Link>
+    <div className="contract-row">
+      <Link to={contract.status === "in_progress" ? `/app/interview/${contract.id}` : `/app/contracts/${contract.id}`} className="contract-row-main-link">
+        <span className="contract-file-icon"><FileText size={17} /></span>
+        <span className="contract-row-main"><b>{contract.title}</b><small>{contract.contract_type.replaceAll("_", " ")} · Atualizado {new Date(contract.updated_at).toLocaleDateString("pt-BR")}</small></span>
+        <span className={`status-pill status-${contract.status}`}>{statusLabels[contract.status]}</span>
+        <ArrowRight className="row-arrow" size={15} />
+      </Link>
+      <div className="contract-row-actions">
+        <button className="icon-button" type="button" title="Editar nome" onClick={() => setEditing(true)}><Pencil size={15} /></button>
+        <button className="icon-button icon-button-danger" type="button" title="Excluir contrato" onClick={() => setConfirming(true)}><Trash2 size={15} /></button>
+      </div>
+      {confirming && <div className="contract-confirm">
+        <span>Excluir “{contract.title}”? Esta ação não pode ser desfeita.</span>
+        <button className="button button-secondary" type="button" onClick={() => setConfirming(false)}>Cancelar</button>
+        <button className="button button-danger" type="button" disabled={remove.isPending} onClick={() => remove.mutate()}>{remove.isPending ? "Excluindo…" : "Excluir"}</button>
+      </div>}
+    </div>
   );
 }

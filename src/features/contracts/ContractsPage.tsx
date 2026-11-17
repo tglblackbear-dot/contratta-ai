@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Download, FileText } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { EmptyState, PageTitle, QueryState } from "../../components/ui/Page";
 import { ContractRow } from "../dashboard/DashboardPage";
 import { requireSupabase } from "../../lib/supabase";
@@ -9,7 +9,8 @@ import { AUTHORSHIP_PHRASE, verifyAuthorship } from "../../lib/attribution";
 import type { Contract } from "../../types/database";
 
 export function ContractsPage() {
-  const [filter, setFilter] = useState("all");
+  const [searchParams] = useSearchParams();
+  const [filter, setFilter] = useState(searchParams.get("status") ?? "all");
   const query = useQuery({
     queryKey: ["contracts"],
     queryFn: async () => {
@@ -20,7 +21,11 @@ export function ContractsPage() {
       return (data ?? []) as Pick<Contract, "id" | "title" | "contract_type" | "status" | "created_at" | "updated_at">[];
     },
   });
-  const filtered = useMemo(() => filter === "all" ? query.data ?? [] : (query.data ?? []).filter((item) => item.status === filter), [filter, query.data]);
+  const filtered = useMemo(() => {
+    if (filter === "all") return query.data ?? [];
+    const statuses = filter.split(",");
+    return (query.data ?? []).filter((item) => statuses.includes(item.status));
+  }, [filter, query.data]);
 
   return (
     <>
