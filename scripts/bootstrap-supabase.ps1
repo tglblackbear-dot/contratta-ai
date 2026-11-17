@@ -70,7 +70,8 @@ $markers = @(
   @{ File = '006_atomic_interview_start.sql'; Sql = "select count(*)::int as n from pg_proc where pronamespace = 'public'::regnamespace and proname = 'start_interview_session'" },
   @{ File = '007_web_push_notifications.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'push_subscriptions'" },
   @{ File = '008_consent_records.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'consent_records'" },
-  @{ File = '009_unique_installment_receipt.sql'; Sql = "select count(*)::int as n from pg_indexes where schemaname = 'public' and indexname = 'payment_receipts_installment_unique_idx'" }
+  @{ File = '009_unique_installment_receipt.sql'; Sql = "select count(*)::int as n from pg_indexes where schemaname = 'public' and indexname = 'payment_receipts_installment_unique_idx'" },
+  @{ File = '010_contract_credits.sql'; Sql = "select count(*)::int as n from pg_tables where schemaname = 'public' and tablename = 'user_credits'" }
 )
 
 Write-Host '== 2/7 Aplicando migrations pendentes (005-009) =='

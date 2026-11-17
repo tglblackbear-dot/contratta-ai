@@ -17,6 +17,7 @@ const PartyDetailPage = lazy(() => import("../features/parties/PartiesPage").the
 const ProfilePage = lazy(() => import("../features/profile/ProfilePage").then((module) => ({ default: module.ProfilePage })));
 const OnboardingPage = lazy(() => import("../features/profile/ProfilePage").then((module) => ({ default: module.OnboardingPage })));
 const SettingsPage = lazy(() => import("../features/profile/SettingsPage").then((module) => ({ default: module.SettingsPage })));
+const BillingPage = lazy(() => import("../features/billing/BillingPage").then((module) => ({ default: module.BillingPage })));
 const SignaturePage = lazy(() => import("../features/signatures/SignaturePage").then((module) => ({ default: module.SignaturePage })));
 const FinancePage = lazy(() => import("../features/finance/FinancePages").then((module) => ({ default: module.FinancePage })));
 const ReceiptsPage = lazy(() => import("../features/finance/FinancePages").then((module) => ({ default: module.ReceiptsPage })));
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="parties/:partyId" element={<PartyDetailPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="billing" element={<BillingPage />} />
         <Route path="finance" element={<FinancePage />} />
         <Route path="receipts" element={<ReceiptsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />

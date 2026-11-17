@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Bell,
+  CreditCard,
   FilePlus2,
   FileText,
   LayoutDashboard,
@@ -27,6 +28,7 @@ const navigation = [
   { to: "/app/finance", label: "Financeiro", icon: WalletCards },
   { to: "/app/receipts", label: "Recibos", icon: ReceiptText },
   { to: "/app/notifications", label: "Notificações", icon: Bell },
+  { to: "/app/billing", label: "Contratar créditos", icon: CreditCard },
 ];
 
 export function AppShell() {

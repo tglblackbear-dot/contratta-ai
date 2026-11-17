@@ -33,6 +33,12 @@ Deno.serve(async (request) => {
   const auth = await getAuthorizedUser(request);
   if (isResponse(auth)) return auth;
   const { client, user } = auth;
+  const { data: creditRow, error: creditError } = await client.from("user_credits")
+    .select("credits").eq("user_id", user.id).maybeSingle();
+  if (creditError) return jsonResponse({ error: "Não foi possível verificar seus créditos." }, 500);
+  if (!creditRow || creditRow.credits < 1) {
+    return jsonResponse({ error: "Crédito insuficiente. Contrate um crédito para gerar este documento." }, 402);
+  }
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(AUTHORSHIP_PHRASE));
   const actualHash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
   if (actualHash !== AUTHORSHIP_SHA256) return jsonResponse({ error: "Document integrity check failed." }, 500);
@@ -109,6 +115,11 @@ Deno.serve(async (request) => {
     metadata: { template_version: 1, authorship_identifier: AUTHORSHIP_PHRASE },
   });
   if (auditError) return jsonResponse({ error: "Could not record the document event." }, 500);
+
+  const { data: consumed, error: consumeError } = await client.rpc("consume_contract_credit");
+  if (consumeError || consumed !== true) {
+    return jsonResponse({ error: "Não foi possível baixar o crédito deste contrato. Tente novamente." }, 402);
+  }
 
   return jsonResponse({ contract_id: updatedContract.id, status: "draft" });
 });

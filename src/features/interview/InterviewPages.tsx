@@ -36,9 +36,20 @@ type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 export function NewContractPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [templateId, setTemplateId] = useState("");
   const [title, setTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const creditsQuery = useQuery({
+    queryKey: ["credits", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data, error } = await requireSupabase().from("user_credits").select("credits").eq("user_id", user!.id).maybeSingle();
+      if (error) throw new Error(error.message);
+      return data?.credits ?? 0;
+    },
+  });
+  const hasCredit = (creditsQuery.data ?? 0) > 0;
   const templatesQuery = useQuery({
     queryKey: ["templates"],
     queryFn: async () => {
@@ -92,7 +103,8 @@ export function NewContractPage() {
                 <input className="text-input" value={title} onChange={(event) => setTitle(event.target.value)} placeholder={selectedTemplate?.name ?? "Ex.: Venda da motocicleta"} />
               </label>
               {errorMessage && <p className="form-message error-message" role="alert">{errorMessage}</p>}
-              <button className="button button-primary" disabled={!selectedTemplate || start.isPending} onClick={() => start.mutate()}>{start.isPending ? "Preparando entrevista…" : "Iniciar entrevista"} <ArrowRight size={16} /></button>
+              {!hasCredit && <p className="form-message setup-notice">Você precisa de 1 crédito para criar um contrato. <Link to="/app/billing">Contratar créditos</Link></p>}
+              <button className="button button-primary" disabled={!selectedTemplate || !hasCredit || start.isPending} onClick={() => start.mutate()}>{start.isPending ? "Preparando entrevista…" : "Iniciar entrevista"} <ArrowRight size={16} /></button>
             </section>
             <aside className="interview-intro-card"><span className="intro-sparkle"><Sparkles size={18} /></span><h2>Uma conversa, no seu ritmo.</h2><p>Conte o que já sabe. A entrevista aproveita as informações que você fornecer e aponta o que ainda precisa ser esclarecido.</p><div className="intro-step"><span>01</span><p><b>Conte sobre o acordo</b><small>Use suas próprias palavras.</small></p></div><div className="intro-step"><span>02</span><p><b>Revise os detalhes</b><small>Confirme as informações importantes.</small></p></div><div className="intro-step"><span>03</span><p><b>Prepare o documento</b><small>Leia tudo antes de exportar.</small></p></div><p className="legal-note">O conteúdo é um ponto de partida e deve ser revisado pelas partes. A plataforma não substitui aconselhamento jurídico.</p></aside>
           </div>
