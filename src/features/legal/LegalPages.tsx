@@ -37,7 +37,7 @@ export function PrivacyPage() {
         <h2>Retenção, exportação e exclusão</h2>
         <p>Use Configurações para exportar registros em JSON ou solicitar a exclusão da conta e dos arquivos privados. O JSON não inclui os PDFs e anexos, que devem ser baixados individualmente. O cache offline é removido ao sair da conta neste dispositivo. A aplicação não executa atualmente uma política automática de expiração dos dados no servidor.</p>
         <h2>Informações do controlador</h2>
-        <p>Antes da disponibilização pública, o operador responsável deve identificar o controlador, informar um canal de contato para solicitações de privacidade, definir bases legais e formalizar prazos de retenção adequados. Esses dados não são presumidos pela aplicação.</p>
+        <p>O controlador dos dados é o operador do CONTRATTA AI. Esta versão da política usa uma identificação genérica: antes da oferta pública, o operador deve substituir este parágrafo pela razão social ou nome completo, CNPJ ou CPF, endereço e e-mail de contato para solicitações de privacidade, além de declarar as bases legais aplicáveis e os prazos de retenção adotados.</p>
       </section>
     </main>
   );
