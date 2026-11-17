@@ -122,18 +122,22 @@ Deno.serve(async (request) => {
     { role: "user", content: input.data.message },
   ];
 
-  let aiResponse: Response;
-  try {
-    aiResponse = await fetch(apiUrl, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, messages, response_format: { type: "json_object" }, temperature: 0.1 }),
-      signal: AbortSignal.timeout(45_000),
-    });
-  } catch {
-    return jsonResponse({ error: "Não foi possível conectar ao provedor de IA." }, 502);
+  let aiResponse: Response | undefined;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      aiResponse = await fetch(apiUrl, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, response_format: { type: "json_object" }, temperature: 0.1 }),
+        signal: AbortSignal.timeout(45_000),
+      });
+    } catch {
+      return jsonResponse({ error: "Não foi possível conectar ao provedor de IA." }, 502);
+    }
+    if (aiResponse.ok || ![429, 500, 502, 503, 504].includes(aiResponse.status)) break;
+    if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
   }
-  if (!aiResponse.ok) return jsonResponse({ error: "O provedor de IA não processou a solicitação." }, 502);
+  if (!aiResponse?.ok) return jsonResponse({ error: "O provedor de IA não processou a solicitação." }, 502);
 
   const providerPayload = await aiResponse.json().catch(() => null);
   const rawContent = providerPayload?.choices?.[0]?.message?.content;
