@@ -3,7 +3,8 @@ insert into public.contract_categories (slug, name, description) values
   ('commercial', 'Comercial', 'Acordos de compra, venda e atividade comercial.'),
   ('services', 'Serviços', 'Contratos de prestação e escopo de serviços.'),
   ('finance', 'Financeiro', 'Acordos de empréstimo e obrigações financeiras.'),
-  ('other', 'Outros', 'Modelos gerais e personalizados.')
+  ('other', 'Outros', 'Modelos gerais e personalizados.'),
+  ('real_estate', 'Imobiliário', 'Locação e acordos envolvendo imóveis.')
 on conflict (slug) do nothing;
 
 insert into public.contract_types (category_id, slug, name, description)
@@ -12,7 +13,16 @@ from (values
   ('commercial', 'sale_of_goods', 'Compra e venda de bem móvel', 'Registro de condições de venda de um bem móvel.'),
   ('services', 'service_agreement', 'Prestação de serviços', 'Organize o escopo, prazo e pagamento de um serviço.'),
   ('finance', 'loan_agreement', 'Mútuo entre particulares', 'Organize informações de um empréstimo entre pessoas.'),
-  ('other', 'custom_agreement', 'Acordo personalizado', 'Estruture os termos informados pelas partes.')
+  ('other', 'custom_agreement', 'Acordo personalizado', 'Estruture os termos informados pelas partes.'),
+  ('real_estate', 'rental_agreement', 'Locação de imóvel', 'Organize aluguel, prazo, depósito e obrigações das partes.'),
+  ('commercial', 'equipment_rental', 'Locação de bem móvel', 'Registre locação de equipamentos, valor e devolução.'),
+  ('commercial', 'confidentiality', 'Acordo de confidencialidade', 'Proteja informações compartilhadas entre as partes.'),
+  ('commercial', 'partnership', 'Acordo de parceria', 'Defina contribuições, resultados e responsabilidades.'),
+  ('finance', 'debt_settlement', 'Acordo de quitação de dívida', 'Registre negociação e quitação de débito.'),
+  ('commercial', 'software_license', 'Licença de uso de software', 'Organize escopo, prazo e valor de uma licença.'),
+  ('commercial', 'transport_agreement', 'Contrato de transporte', 'Registre coleta, entrega e responsabilidade sobre a carga.'),
+  ('commercial', 'agency_agreement', 'Contrato de agência', 'Defina área de atuação, comissão e prazo do agente.'),
+  ('other', 'donation_agreement', 'Doação', 'Registre a doação de bens e sua finalidade.')
 ) as t(category_slug, slug, name, description)
 join public.contract_categories c on c.slug = t.category_slug
 on conflict (slug) do nothing;
@@ -76,6 +86,105 @@ from (values
     '[{"key":"first_party","label":"Nome completo da primeira parte","required":true},{"key":"first_party_document","label":"CPF ou CNPJ da primeira parte","required":true},{"key":"second_party","label":"Nome completo da segunda parte","required":true},{"key":"second_party_document","label":"CPF ou CNPJ da segunda parte","required":true},{"key":"agreement_subject","label":"Objeto do acordo","required":true},{"key":"terms","label":"Condições combinadas","required":true},{"key":"effective_date","label":"Data de início ou vigência","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true},{"key":"first_party_contact","label":"E-mail ou telefone da primeira parte","required":false},{"key":"second_party_contact","label":"E-mail ou telefone da segunda parte","required":false}]',
     '[{"title":"Partes","body":"Primeira parte: {{first_party}}, inscrita no CPF/CNPJ sob o número {{first_party_document}}. Segunda parte: {{second_party}}, inscrita no CPF/CNPJ sob o número {{second_party_document}}."},{"title":"Objeto","body":"As partes informam que o objeto deste acordo é: {{agreement_subject}}."},{"title":"Condições","body":"As condições informadas pelas partes são: {{terms}}."},{"title":"Vigência","body":"As partes indicam como data de início ou vigência: {{effective_date}}."},{"title":"Legislação e foro","body":"Este instrumento é regido pela lei brasileira, inclusive pelas disposições gerais dos contratos do Código Civil Brasileiro. Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas, salvo escolha diversa expressamente acordada."},{"title":"Aceite e revisão","body":"As partes devem conferir a adequação deste texto à sua situação e buscar orientação profissional antes de formalizá-lo. O aceite eletrônico registrado pela plataforma não equivale a assinatura eletrônica qualificada, nos termos da Lei nº 14.063/2020 e da Medida Provisória nº 2.200-2/2001."}]',
     ARRAY['Código Civil Brasileiro: disposições gerais dos contratos','Lei nº 13.709/2018 (LGPD)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'real_estate',
+    'rental_agreement',
+    'rental-agreement',
+    'Locação de imóvel',
+    'Organize aluguel, prazo, depósito e obrigações de locador e locatário.',
+    'Registrar os termos da locação de um imóvel e as obrigações das partes.',
+    '[{"key":"landlord_name","label":"Nome completo do locador","required":true},{"key":"landlord_document","label":"CPF ou CNPJ do locador","required":true},{"key":"tenant_name","label":"Nome completo do locatário","required":true},{"key":"tenant_document","label":"CPF ou CNPJ do locatário","required":true},{"key":"property_description","label":"Descrição do imóvel (endereço e características)","required":true},{"key":"rent_value","label":"Valor do aluguel em reais","required":true},{"key":"payment_day","label":"Dia de vencimento do aluguel","required":true},{"key":"lease_term","label":"Prazo da locação","required":true},{"key":"security_deposit","label":"Valor do depósito de garantia em reais","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Locador(a): {{landlord_name}}, inscrito(a) no CPF/CNPJ sob o número {{landlord_document}}. Locatário(a): {{tenant_name}}, inscrito(a) no CPF/CNPJ sob o número {{tenant_document}}."},{"title":"Objeto","body":"O imóvel locado é descrito como: {{property_description}}."},{"title":"Aluguel","body":"O aluguel mensal é de {{rent_value}}, com vencimento todo dia {{payment_day}}."},{"title":"Prazo","body":"A locação vigorará pelo prazo de {{lease_term}}, podendo ser renovada mediante acordo escrito."},{"title":"Depósito de garantia","body":"O locatário entregará depósito de garantia no valor de {{security_deposit}}, que será restituído ao final da locação, descontados débitos comprovados."},{"title":"Obrigações das partes","body":"O locador entregará o imóvel em condições de uso e o locatário o utilizará com cuidado, pagando aluguel e encargos em dia, conforme a Lei nº 8.245/1991."},{"title":"Legislação e foro","body":"Este instrumento é regido pela Lei nº 8.245/1991 e pelo Código Civil Brasileiro. Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes declaram ter lido e revisado este contrato. O aceite eletrônico registrado pela plataforma não equivale a assinatura eletrônica qualificada, nos termos da Lei nº 14.063/2020 e da Medida Provisória nº 2.200-2/2001."}]',
+    ARRAY['Lei nº 8.245/1991 (locação de imóveis)','Código Civil Brasileiro: arts. 421 e 422','Lei nº 13.709/2018 (LGPD)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'equipment_rental',
+    'equipment-rental',
+    'Locação de bem móvel',
+    'Registre locação de equipamentos, valor, prazo e devolução.',
+    'Organizar a locação de um bem móvel entre locador e locatário.',
+    '[{"key":"lessor_name","label":"Nome completo do locador","required":true},{"key":"lessor_document","label":"CPF ou CNPJ do locador","required":true},{"key":"lessee_name","label":"Nome completo do locatário","required":true},{"key":"lessee_document","label":"CPF ou CNPJ do locatário","required":true},{"key":"equipment_description","label":"Descrição do equipamento (marca, modelo, série)","required":true},{"key":"rental_value","label":"Valor da locação em reais","required":true},{"key":"rental_period","label":"Período da locação","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Locador(a): {{lessor_name}}, inscrito(a) no CPF/CNPJ sob o número {{lessor_document}}. Locatário(a): {{lessee_name}}, inscrito(a) no CPF/CNPJ sob o número {{lessee_document}}."},{"title":"Objeto","body":"O equipamento locado é descrito como: {{equipment_description}}."},{"title":"Valor","body":"O valor da locação é de {{rental_value}}, pago conforme acordo entre as partes."},{"title":"Prazo","body":"A locação vigorará durante {{rental_period}}."},{"title":"Conservação e devolução","body":"O locatário deverá conservar o bem e devolvê-lo nas mesmas condições em que recebeu, salvo desgaste natural, conforme os artigos 565 a 578 do Código Civil Brasileiro."},{"title":"Legislação e foro","body":"Este instrumento é regido pela lei brasileira. Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes devem revisar os dados antes de manifestar aceite. O aceite eletrônico registrado pela plataforma não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 565 a 578 (locação de coisas)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'confidentiality',
+    'confidentiality',
+    'Acordo de confidencialidade',
+    'Defina quais informações são confidenciais e por quanto tempo.',
+    'Proteger informações confidenciais compartilhadas entre as partes.',
+    '[{"key":"party_a_name","label":"Nome completo da primeira parte","required":true},{"key":"party_a_document","label":"CPF ou CNPJ da primeira parte","required":true},{"key":"party_b_name","label":"Nome completo da segunda parte","required":true},{"key":"party_b_document","label":"CPF ou CNPJ da segunda parte","required":true},{"key":"confidential_info","label":"Descrição das informações confidenciais","required":true},{"key":"purpose","label":"Finalidade do compartilhamento","required":true},{"key":"term_months","label":"Prazo de confidencialidade em meses","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Primeira parte: {{party_a_name}}, inscrita no CPF/CNPJ sob o número {{party_a_document}}. Segunda parte: {{party_b_name}}, inscrita no CPF/CNPJ sob o número {{party_b_document}}."},{"title":"Informação confidencial","body":"São consideradas confidenciais as seguintes informações: {{confidential_info}}."},{"title":"Finalidade","body":"As informações poderão ser usadas apenas para: {{purpose}}."},{"title":"Prazo","body":"A obrigação de confidencialidade vigorará por {{term_months}} meses contados da data deste acordo."},{"title":"Obrigações","body":"As partes se obrigam a não divulgar, copiar ou usar as informações para fins diversos da finalidade informada, adotando cuidados razoáveis de segurança."},{"title":"Devolução","body":"A pedido da parte divulgadora, a outra parte devolverá ou descartará o material recebido, salvo obrigação legal de conservação."},{"title":"Legislação e foro","body":"Este acordo é regido pelo Código Civil Brasileiro e pela Lei nº 13.709/2018 (LGPD). Fica eleito o foro da comarca de {{jurisdiction}}."},{"title":"Aceite e revisão","body":"As partes devem revisar este acordo antes de manifestar aceite. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 421 e 422 (boa-fé e função social)','Lei nº 13.709/2018 (LGPD)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'partnership',
+    'partnership',
+    'Acordo de parceria',
+    'Defina contribuições, divisão de resultados e responsabilidades.',
+    'Registrar uma parceria entre pessoas ou empresas para determinado objetivo.',
+    '[{"key":"partner_a_name","label":"Nome completo do primeiro parceiro","required":true},{"key":"partner_a_document","label":"CPF ou CNPJ do primeiro parceiro","required":true},{"key":"partner_b_name","label":"Nome completo do segundo parceiro","required":true},{"key":"partner_b_document","label":"CPF ou CNPJ do segundo parceiro","required":true},{"key":"partnership_object","label":"Objeto da parceria","required":true},{"key":"contributions","label":"Contribuições de cada parte","required":true},{"key":"profit_split","label":"Forma de divisão dos resultados","required":true},{"key":"term","label":"Prazo da parceria","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Primeiro parceiro: {{partner_a_name}}, inscrito no CPF/CNPJ sob o número {{partner_a_document}}. Segundo parceiro: {{partner_b_name}}, inscrito no CPF/CNPJ sob o número {{partner_b_document}}."},{"title":"Objeto","body":"A parceria tem por objeto: {{partnership_object}}."},{"title":"Contribuições","body":"As contribuições de cada parte são: {{contributions}}."},{"title":"Resultados","body":"Os resultados serão divididos conforme: {{profit_split}}."},{"title":"Prazo","body":"A parceria vigorará pelo prazo de {{term}}."},{"title":"Responsabilidade","body":"Cada parte responderá por suas próprias obrigações, observando a boa-fé objetiva e a função social do contrato, nos termos dos artigos 421 e 422 do Código Civil Brasileiro."},{"title":"Legislação e foro","body":"Este acordo é regido pela lei brasileira. Fica eleito o foro da comarca de {{jurisdiction}}."},{"title":"Aceite e revisão","body":"As partes devem revisar os termos antes de formalizar a parceria. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 421 e 422 e disposições gerais dos contratos','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'finance',
+    'debt_settlement',
+    'debt-settlement',
+    'Acordo de quitação de dívida',
+    'Registre negociação, valor e condições de quitação de débito.',
+    'Organizar acordo entre credor e devedor para quitação de dívida.',
+    '[{"key":"creditor_name","label":"Nome completo do credor","required":true},{"key":"creditor_document","label":"CPF ou CNPJ do credor","required":true},{"key":"debtor_name","label":"Nome completo do devedor","required":true},{"key":"debtor_document","label":"CPF ou CNPJ do devedor","required":true},{"key":"debt_description","label":"Descrição da dívida (origem e valor original)","required":true},{"key":"settlement_amount","label":"Valor acordado para quitação em reais","required":true},{"key":"payment_terms","label":"Forma e prazo de pagamento","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Credor(a): {{creditor_name}}, inscrito(a) no CPF/CNPJ sob o número {{creditor_document}}. Devedor(a): {{debtor_name}}, inscrito(a) no CPF/CNPJ sob o número {{debtor_document}}."},{"title":"Dívida","body":"A dívida objeto deste acordo é descrita como: {{debt_description}}."},{"title":"Valor acordado","body":"As partes acordam o valor de {{settlement_amount}} para quitação da dívida."},{"title":"Pagamento","body":"O pagamento será feito conforme: {{payment_terms}}."},{"title":"Quitação","body":"Após o pagamento integral do valor acordado, o credor dará plena quitação ao devedor, nos termos dos artigos 319 e 320 do Código Civil Brasileiro."},{"title":"Transação","body":"Este acordo tem natureza de transação, conforme os artigos 840 a 850 do Código Civil Brasileiro, buscando encerrar a controvérsia entre as partes."},{"title":"Legislação e foro","body":"Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes devem revisar os valores antes de manifestar aceite. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 319, 320 e 840 a 850 (quitação e transação)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'software_license',
+    'software-license',
+    'Licença de uso de software',
+    'Defina escopo, prazo e valor de uma licença de software.',
+    'Registrar os termos de licenciamento de uso de software.',
+    '[{"key":"licensor_name","label":"Nome completo do licenciador","required":true},{"key":"licensor_document","label":"CPF ou CNPJ do licenciador","required":true},{"key":"licensee_name","label":"Nome completo do licenciado","required":true},{"key":"licensee_document","label":"CPF ou CNPJ do licenciado","required":true},{"key":"software_description","label":"Descrição do software","required":true},{"key":"license_scope","label":"Escopo de uso autorizado","required":true},{"key":"license_value","label":"Valor da licença em reais","required":true},{"key":"license_term","label":"Prazo da licença","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Licenciador(a): {{licensor_name}}, inscrito(a) no CPF/CNPJ sob o número {{licensor_document}}. Licenciado(a): {{licensee_name}}, inscrito(a) no CPF/CNPJ sob o número {{licensee_document}}."},{"title":"Objeto","body":"O software licenciado é descrito como: {{software_description}}."},{"title":"Escopo de uso","body":"O uso autorizado é: {{license_scope}}. É vedado usar o software fora desse escopo."},{"title":"Valor","body":"O valor da licença é de {{license_value}}, pago conforme acordo entre as partes."},{"title":"Prazo","body":"A licença vigorará pelo prazo de {{license_term}}."},{"title":"Propriedade intelectual","body":"A propriedade do software permanece com o licenciador, conforme a Lei nº 9.609/1998. Esta licença não transfere titularidade."},{"title":"Responsabilidade","body":"O licenciado utilizará o software de forma lícita e o licenciador responderá pela conformidade do produto com a descrição informada."},{"title":"Legislação e foro","body":"Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes devem revisar os termos antes de manifestar aceite. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Lei nº 9.609/1998 (propriedade intelectual de software)','Código Civil Brasileiro: disposições gerais dos contratos','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'transport_agreement',
+    'transport-agreement',
+    'Contrato de transporte',
+    'Registre coleta, entrega, valor e responsabilidade sobre a carga.',
+    'Organizar a contratação de transporte de bens ou cargas.',
+    '[{"key":"carrier_name","label":"Nome completo do transportador","required":true},{"key":"carrier_document","label":"CPF ou CNPJ do transportador","required":true},{"key":"shipper_name","label":"Nome completo do contratante do transporte","required":true},{"key":"shipper_document","label":"CPF ou CNPJ do contratante","required":true},{"key":"cargo_description","label":"Descrição da carga","required":true},{"key":"origin","label":"Local de coleta","required":true},{"key":"destination","label":"Local de entrega","required":true},{"key":"transport_value","label":"Valor do transporte em reais","required":true},{"key":"delivery_deadline","label":"Prazo de entrega","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Transportador(a): {{carrier_name}}, inscrito(a) no CPF/CNPJ sob o número {{carrier_document}}. Contratante: {{shipper_name}}, inscrito(a) no CPF/CNPJ sob o número {{shipper_document}}."},{"title":"Objeto","body":"A carga a ser transportada é descrita como: {{cargo_description}}."},{"title":"Coleta e entrega","body":"A coleta ocorrerá em {{origin}} e a entrega em {{destination}}."},{"title":"Valor","body":"O valor do transporte é de {{transport_value}}, pago conforme acordo entre as partes."},{"title":"Prazo","body":"A entrega deverá ocorrer até {{delivery_deadline}}."},{"title":"Responsabilidade","body":"O transportador responderá pela entrega da carga nas condições recebidas, nos termos dos artigos 730 a 756 do Código Civil Brasileiro, salvo causa excludente de responsabilidade."},{"title":"Legislação e foro","body":"Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes devem revisar os dados antes de manifestar aceite. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 730 a 756 (contrato de transporte)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'commercial',
+    'agency_agreement',
+    'agency-agreement',
+    'Contrato de agência',
+    'Defina área de atuação, comissão e prazo do agente.',
+    'Registrar a atuação de agente em nome de uma empresa.',
+    '[{"key":"principal_name","label":"Nome completo do principal","required":true},{"key":"principal_document","label":"CPF ou CNPJ do principal","required":true},{"key":"agent_name","label":"Nome completo do agente","required":true},{"key":"agent_document","label":"CPF ou CNPJ do agente","required":true},{"key":"agency_object","label":"Objeto da agência","required":true},{"key":"territory","label":"Área ou território de atuação","required":true},{"key":"commission","label":"Forma de cálculo da comissão","required":true},{"key":"term","label":"Prazo do contrato","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Principal: {{principal_name}}, inscrito no CPF/CNPJ sob o número {{principal_document}}. Agente: {{agent_name}}, inscrito no CPF/CNPJ sob o número {{agent_document}}."},{"title":"Objeto","body":"O agente atuará na promoção e intermediação de negócios referentes a: {{agency_object}}."},{"title":"Área de atuação","body":"A atuação ocorrerá em: {{territory}}."},{"title":"Comissão","body":"A comissão será calculada conforme: {{commission}}."},{"title":"Prazo","body":"Este contrato vigorará pelo prazo de {{term}}."},{"title":"Obrigações","body":"O agente agirá com lealdade e diligência, observando a Lei nº 4.886/1965 e suas alterações."},{"title":"Rescisão","body":"A rescisão seguirá o disposto na legislação aplicável e as condições acordadas entre as partes."},{"title":"Legislação e foro","body":"Fica eleito o foro da comarca de {{jurisdiction}} para dirimir dúvidas."},{"title":"Aceite e revisão","body":"As partes devem revisar os termos antes de manifestar aceite. O aceite eletrônico não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Lei nº 4.886/1965 e alterações (contrato de agência)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
+  ),
+  (
+    'other',
+    'donation_agreement',
+    'donation-agreement',
+    'Doação',
+    'Registre a doação de um bem e sua finalidade.',
+    'Registrar a transferência gratuita de um bem a outra pessoa.',
+    '[{"key":"donor_name","label":"Nome completo do doador","required":true},{"key":"donor_document","label":"CPF ou CNPJ do doador","required":true},{"key":"donee_name","label":"Nome completo do donatário","required":true},{"key":"donee_document","label":"CPF ou CNPJ do donatário","required":true},{"key":"donated_asset","label":"Descrição do bem doado","required":true},{"key":"donation_purpose","label":"Finalidade ou encargo da doação","required":true},{"key":"donation_date","label":"Data da doação","required":true},{"key":"jurisdiction","label":"Comarca do foro escolhido","required":true}]',
+    '[{"title":"Partes","body":"Doador(a): {{donor_name}}, inscrito(a) no CPF/CNPJ sob o número {{donor_document}}. Donatário(a): {{donee_name}}, inscrito(a) no CPF/CNPJ sob o número {{donee_document}}."},{"title":"Objeto","body":"O bem doado é descrito como: {{donated_asset}}."},{"title":"Finalidade","body":"A doação é destinada a: {{donation_purpose}}. Tratando-se de doação com encargo, o donatário deverá cumpri-lo, conforme o Código Civil Brasileiro."},{"title":"Entrega","body":"A entrega do bem ocorrerá em {{donation_date}}, com transferência de posse ao donatário."},{"title":"Legislação e foro","body":"Esta doação é regida pelos artigos 538 a 556 do Código Civil Brasileiro. Fica eleito o foro da comarca de {{jurisdiction}}."},{"title":"Aceite e revisão","body":"As partes declaram ter lido e revisado este documento. O aceite eletrônico registrado pela plataforma não equivale a assinatura eletrônica qualificada."}]',
+    ARRAY['Código Civil Brasileiro: arts. 538 a 556 (doação)','Lei nº 14.063/2020 e Medida Provisória nº 2.200-2/2001 (assinatura eletrônica)']::text[]
   )
 ) as template(category_slug, type_slug, slug, name, description, purpose, fields, clauses, legal_refs)
 join public.contract_categories category on category.slug = template.category_slug
