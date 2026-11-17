@@ -1,4 +1,4 @@
-const CACHE_NAME = "contratta-static-" + "__BUILD_ID__";
+const CACHE_NAME = "contratta-static-f6806b23-" + "__BUILD_ID__";
 const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./favicon.svg", "./offline.html"];
 
 self.addEventListener("install", (event) => {
