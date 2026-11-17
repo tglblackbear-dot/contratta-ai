@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Clock3, FilePlus2, FileText, Plus, UsersRound } from "lucide-react";
+import { ArrowRight, Clock3, CreditCard, FilePlus2, FileText, Plus, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { PageTitle, QueryState, EmptyState } from "../../components/ui/Page";
@@ -54,6 +54,16 @@ export function DashboardPage() {
       return count ?? 0;
     },
   });
+  const creditsQuery = useQuery({
+    queryKey: ["credits", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data, error } = await requireSupabase().from("user_credits").select("credits").eq("user_id", user!.id).maybeSingle();
+      if (error) throw error;
+      return data?.credits ?? 0;
+    },
+  });
+  const credits = creditsQuery.data ?? 0;
   const contracts = contractsQuery.data ?? [];
   const displayName = user?.user_metadata?.full_name?.trim().split(/\s+/)[0] || "bem-vindo";
 
@@ -76,6 +86,7 @@ export function DashboardPage() {
 
       <QueryState loading={statsQuery.isLoading} error={statsQuery.error as Error | null}>
         <section className="stats-grid" aria-label="Resumo dos seus contratos">
+          <StatCard label="Créditos disponíveis" value={credits} icon={<CreditCard size={18} />} tone="violet" />
           <StatCard label="Total de contratos" value={statsQuery.data?.total ?? 0} icon={<FileText size={18} />} tone="blue" />
           <StatCard label="Em elaboração" value={statsQuery.data?.drafting ?? 0} icon={<Clock3 size={18} />} tone="amber" />
           <StatCard label="Aguardando assinatura" value={statsQuery.data?.awaitingSignature ?? 0} icon={<UsersRound size={18} />} tone="violet" />
@@ -106,6 +117,7 @@ export function DashboardPage() {
             <Link className="quick-link" to="/app/new-contract"><span className="quick-icon quick-blue"><FilePlus2 size={17} /></span><span><b>Novo contrato</b><small>Comece uma entrevista</small></span><ArrowRight size={15} /></Link>
             <Link className="quick-link" to="/app/templates"><span className="quick-icon quick-violet"><FileText size={17} /></span><span><b>Explorar modelos</b><small>Veja tipos de contrato</small></span><ArrowRight size={15} /></Link>
             <Link className="quick-link" to="/app/parties"><span className="quick-icon quick-green"><UsersRound size={17} /></span><span><b>Partes frequentes</b><small>{partiesQuery.data ?? 0} cadastradas</small></span><ArrowRight size={15} /></Link>
+            <Link className="quick-link" to="/app/billing"><span className="quick-icon quick-blue"><CreditCard size={17} /></span><span><b>Créditos</b><small>{credits} disponível(is) · contratar mais</small></span><ArrowRight size={15} /></Link>
           </section>
           <div className="privacy-card"><span className="privacy-lock">⌑</span><div><b>Seu espaço é privado</b><p>Seus dados ficam associados à sua conta e protegidos por políticas de acesso.</p></div></div>
         </aside>
