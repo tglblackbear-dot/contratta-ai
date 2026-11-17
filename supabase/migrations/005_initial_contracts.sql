@@ -103,8 +103,8 @@ cross join lateral jsonb_array_elements(template.clauses) as clause(item)
 on conflict (slug) do nothing;
 
 insert into public.contract_template_clauses (template_id, clause_id, position, required)
-select template.id, clause.id, clause.ordinality::integer, true
+select template.id, stored_clause.id, template_clause.ordinality::integer, true
 from public.contract_templates template
-cross join lateral jsonb_array_elements(template.clauses) with ordinality as clause(item, ordinality)
-join public.contract_clauses clause on clause.slug = template.slug || '-' || (clause.item ->> 'title')
+cross join lateral jsonb_array_elements(template.clauses) with ordinality as template_clause(item, ordinality)
+join public.contract_clauses stored_clause on stored_clause.slug = template.slug || '-' || (template_clause.item ->> 'title')
 on conflict (template_id, clause_id) do nothing;
