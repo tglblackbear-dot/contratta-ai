@@ -31,7 +31,8 @@ $headers = @{ Authorization = 'Bearer ' + $cfg['SUPABASE_ACCESS_TOKEN'] }
 
 function Invoke-Sql([string]$sql) {
   $body = @{ query = $sql } | ConvertTo-Json -Compress
-  return Invoke-RestMethod -Uri "$projectBase/database/query" -Headers $headers -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 180
+  $bytes = [Text.Encoding]::UTF8.GetBytes($body)
+  return Invoke-RestMethod -Uri "$projectBase/database/query" -Headers $headers -Method Post -ContentType 'application/json; charset=utf-8' -Body $bytes -TimeoutSec 180
 }
 
 function Set-GhVariable([string]$name, [string]$value) {
