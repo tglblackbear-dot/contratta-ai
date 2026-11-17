@@ -62,7 +62,7 @@ export function BillingPage() {
         <section className="panel billing-plan">
           <span className="billing-icon"><CreditCard size={22} /></span>
           <h2>1 contrato · pagamento único</h2>
-          <p>R$ 19,90 por contrato gerado. Você recebe um código após a confirmação do pagamento e o usa para liberar a criação do documento.</p>
+          <p>R$ 6,00 por contrato gerado. O crédito é liberado automaticamente após a confirmação do pagamento. Se houver divergência, use o código enviado pelo operador.</p>
           <ul>
             <li><CheckCircle2 size={15} /> Entrevista assistida para reunir os dados</li>
             <li><CheckCircle2 size={15} /> Minuta revisável antes de exportar</li>
