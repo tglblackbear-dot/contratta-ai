@@ -171,7 +171,7 @@ export function AppShell() {
       <main className="main-area">
         <header className="topbar">
           <span className="breadcrumb">Seu espaço de trabalho</span>
-        <span className="graffiti-mark" title="Identificador de autoria">Deus acima de tudo, familia em primeiro lugar.</span>
+        <img className="graffiti-mark" src={`${import.meta.env.BASE_URL}graffiti-assinatura.png`} alt="Deus acima de tudo, familia em primeiro lugar" title="Identificador de autoria" />
           <div className="topbar-right">
             <button className="button button-secondary install-button" type="button" onClick={() => void handleInstall()} title="Instalar o Contratta AI no seu dispositivo">
               <Download size={15} /> Instalar app
