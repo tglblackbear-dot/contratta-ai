@@ -1,10 +1,24 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const repositoryName = "contratta-ai";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: "inject-sw-build-id",
+      apply: "build",
+      writeBundle() {
+        const swPath = resolve(process.cwd(), "dist", "sw.js");
+        if (!existsSync(swPath)) return;
+        const source = readFileSync(swPath, "utf8").replace("__BUILD_ID__", Date.now().toString(36));
+        writeFileSync(swPath, source, "utf8");
+      },
+    },
+  ],
   base: process.env.GITHUB_ACTIONS === "true" ? `/${repositoryName}/` : "/",
   build: {
     rollupOptions: {

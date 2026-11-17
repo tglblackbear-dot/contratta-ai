@@ -1,5 +1,5 @@
-const CACHE_NAME = "contratta-static-f6806b23";
-const APP_SHELL = ["./", "./manifest.webmanifest", "./favicon.svg", "./offline.html"];
+const CACHE_NAME = "contratta-static-" + "__BUILD_ID__";
+const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./favicon.svg", "./offline.html"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -34,7 +34,7 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     fetch(request).then(async (response) => {
-      if (response.ok && response.type === "basic") {
+      if (response.ok && response.type === "basic" && request.mode !== "navigate") {
         const cache = await caches.open(CACHE_NAME);
         await cache.put(request, response.clone());
       }
@@ -42,7 +42,9 @@ self.addEventListener("fetch", (event) => {
     }).catch(async () => {
       const cached = await caches.match(request);
       if (cached) return cached;
-      if (request.mode === "navigate") return caches.match("./offline.html");
+      if (request.mode === "navigate") {
+        return (await caches.match("./index.html")) || (await caches.match("./offline.html"));
+      }
       return Response.error();
     }),
   );
