@@ -57,12 +57,21 @@ export function BillingPage() {
 
   return (
     <>
-      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Cada contrato consome 1 crédito de R$ 6,00. Pague com InfinitePay e o crédito aparece automaticamente — o código abaixo é apenas um plano B." />
+      <PageTitle eyebrow="COBRANÇA" title="Contratar" description="Recarregue créditos para criar novos contratos. É simples e o crédito aparece automaticamente." />
+      <section className="panel billing-how">
+        <h2>Como funciona — 3 passos</h2>
+        <ol>
+          <li><span>1</span><div><b>Toque em “Pagar com InfinitePay”</b><p>Você será levado ao checkout seguro. O valor é <b>R$ 6,00 por crédito</b>, e <b>1 crédito = 1 contrato</b>.</p></div></li>
+          <li><span>2</span><div><b>Pague com cartão ou Pix</b><p>Assim que o pagamento for confirmado, o sistema libera seu crédito automaticamente. Normalmente leva poucos segundos.</p></div></li>
+          <li><span>3</span><div><b>Volte ao app e confira</b><p>O número em “Créditos disponíveis” terá aumentado. Se não aparecer em alguns minutos, chame o suporte no WhatsApp e envie o comprovante: <a href="https://wa.me/5571999383974" target="_blank" rel="noreferrer">Fabio.tec · (71) 99938-3974</a>.</p></div></li>
+        </ol>
+        <p className="billing-how-note"><b>Não precisa de código</b> no fluxo normal. O campo de ativação só é usado se o suporte te enviar um código manualmente.</p>
+      </section>
       <div className="billing-layout">
         <section className="panel billing-plan">
           <span className="billing-icon"><CreditCard size={22} /></span>
           <h2>1 contrato · pagamento único</h2>
-          <p>R$ 6,00 por contrato gerado. O crédito é liberado automaticamente após a confirmação do pagamento. Se houver divergência, use o código enviado pelo operador.</p>
+          <p><b>R$ 6,00 = 1 crédito = 1 contrato.</b> Pague agora e use o crédito quando quiser criar um documento. Não há assinatura mensal.</p>
           <ul>
             <li><CheckCircle2 size={15} /> Entrevista assistida para reunir os dados</li>
             <li><CheckCircle2 size={15} /> Minuta revisável antes de exportar</li>
@@ -77,8 +86,8 @@ export function BillingPage() {
         </section>
         <section className="panel billing-redeem">
           <span className="billing-icon"><KeyRound size={22} /></span>
-          <h2>Já pagou? (plano B)</h2>
-          <p>Normalmente você não precisa de nada aqui: o crédito aparece sozinho segundos após o pagamento. Se não apareceu, fale com o suporte no WhatsApp (Fabio.tec · (71) 99938-3974). Após confirmar o pagamento, enviamos um <b>código de uso único</b>; digite-o abaixo e clique em Ativar crédito.</p>
+          <h2>Recebeu um código do suporte?</h2>
+          <p>Use este campo <b>somente se o Fabio.tec te enviar um código</b> após você falar no WhatsApp. Isso acontece apenas se o crédito não aparecer automaticamente. O código é de uso único: digite-o abaixo e clique em Ativar crédito.</p>
           <form onSubmit={(event) => { event.preventDefault(); if (code.trim()) redeem.mutate(code); }}>
             <label className="field-label">Código de ativação
               <input className="text-input" value={code} onChange={(event) => setCode(event.target.value)} placeholder="EX.: CONTRATTO-ABCD-1234" />

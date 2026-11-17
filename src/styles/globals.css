@@ -518,6 +518,18 @@ a { color: inherit; text-decoration: none; }
 .credit-info-actions { display: flex; flex-wrap: wrap; gap: 9px; }
 .credit-info-actions .button { min-height: 38px; font-size: 11px; }
 @media (max-width: 720px) { .header-credit-box { flex-direction: column; align-items: stretch; } .header-credit-count { text-align: left; } .credit-info-panel { flex-direction: column; } }
+
+/* Instruções passo a passo da cobrança */
+.billing-how { padding: 20px; margin: 0 0 18px; border-color: #bfdbfe; background: linear-gradient(110deg, #eff6ff, #ffffff 70%); }
+.billing-how > h2 { margin: 0 0 14px; color: #1e3a5f; font: 700 18px Inter, sans-serif; }
+.billing-how ol { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; counter-reset: passo; }
+.billing-how li { display: flex; gap: 12px; align-items: flex-start; }
+.billing-how li > span { display: grid; flex: 0 0 auto; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #2563eb, #7c3aed); font: 800 14px Inter, sans-serif; box-shadow: 0 4px 10px rgba(37, 99, 235, .25); }
+.billing-how li b { color: #1e3a5f; font-size: 14px; }
+.billing-how li p { margin: 3px 0 0; color: #475569; font-size: 13px; line-height: 1.6; }
+.billing-how li a { color: #1d4ed8; font-weight: 600; }
+.billing-how-note { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px; line-height: 1.6; }
+.billing-how-note b { color: #15803d; }
 @keyframes voice-pulse { 50% { box-shadow: 0 0 0 4px rgba(37,99,235,.12); } }
 
 @media (max-width: 1050px) {
