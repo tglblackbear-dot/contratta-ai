@@ -18,6 +18,7 @@ const ProfilePage = lazy(() => import("../features/profile/ProfilePage").then((m
 const OnboardingPage = lazy(() => import("../features/profile/ProfilePage").then((module) => ({ default: module.OnboardingPage })));
 const SettingsPage = lazy(() => import("../features/profile/SettingsPage").then((module) => ({ default: module.SettingsPage })));
 const BillingPage = lazy(() => import("../features/billing/BillingPage").then((module) => ({ default: module.BillingPage })));
+const LandingPage = lazy(() => import("../features/marketing/LandingPage").then((module) => ({ default: module.LandingPage })));
 const SignaturePage = lazy(() => import("../features/signatures/SignaturePage").then((module) => ({ default: module.SignaturePage })));
 const FinancePage = lazy(() => import("../features/finance/FinancePages").then((module) => ({ default: module.FinancePage })));
 const ReceiptsPage = lazy(() => import("../features/finance/FinancePages").then((module) => ({ default: module.ReceiptsPage })));
@@ -35,6 +36,7 @@ export default function App() {
   return (
     <Suspense fallback={<div className="screen-state" role="status">Carregando…</div>}>
     <Routes>
+      <Route path="/divulgar" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

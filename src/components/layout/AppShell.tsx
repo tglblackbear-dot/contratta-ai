@@ -10,6 +10,7 @@ import {
   Menu,
   ReceiptText,
   Settings,
+  Share2,
   UsersRound,
   WalletCards,
   X,
@@ -71,6 +72,23 @@ export function AppShell() {
     const choice = await installPrompt.userChoice;
     if (choice.outcome === "accepted") setInstallPrompt(null);
     setShowInstallHelp(false);
+  }
+
+  async function handleShare() {
+    const data = {
+      title: "Contratta AI",
+      text: "Contratos inteligentes, simples como uma conversa. R$ 6,00 por contrato.",
+      url: window.location.origin + "/contratta-ai/divulgar",
+    };
+    try {
+      if (navigator.share) await navigator.share(data);
+      else {
+        await navigator.clipboard.writeText(data.url);
+        window.alert("Link copiado: " + data.url);
+      }
+    } catch {
+      // Compartilhamento cancelado pelo usuário.
+    }
   }
 
   const notificationsQuery = useQuery({
@@ -173,6 +191,7 @@ export function AppShell() {
           <span className="breadcrumb">Seu espaço de trabalho</span>
         <img className="graffiti-mark" src={`${import.meta.env.BASE_URL}graffiti-assinatura.png`} alt="Deus acima de tudo, familia em primeiro lugar" title="Identificador de autoria" />
           <div className="topbar-right">
+            <button className="button button-secondary install-button" type="button" onClick={() => void handleShare()} title="Compartilhar o Contratta AI"><Share2 size={15} /> Divulgar</button>
             <button className="button button-secondary install-button" type="button" onClick={() => void handleInstall()} title="Instalar o Contratta AI no seu dispositivo">
               <Download size={15} /> Instalar app
             </button>

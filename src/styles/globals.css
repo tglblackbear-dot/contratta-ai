@@ -538,6 +538,41 @@ a { color: inherit; text-decoration: none; }
 .billing-how-note { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px; line-height: 1.6; }
 .billing-how-note b { color: #15803d; }
 
+/* Landing de divulgação */
+.landing { max-width: 1180px; margin: auto; padding: 22px 24px 50px; }
+.landing-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid #eef2f6; }
+.landing-brand strong { display: block; font: 800 24px Inter, sans-serif; color: #1d4ed8; letter-spacing: -1px; }
+.landing-brand small { display: block; color: #64748b; font-size: 9px; letter-spacing: 1.4px; }
+.landing-nav-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+.landing-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; align-items: center; padding: 52px 0 40px; }
+.landing-hero h1 { font: 800 52px/1.05 Inter, sans-serif; letter-spacing: -2px; color: #14243a; margin: 12px 0 16px; }
+.landing-hero p { color: #64748b; font-size: 17px; line-height: 1.7; max-width: 560px; }
+.landing-cta { display: flex; gap: 10px; margin: 26px 0 22px; flex-wrap: wrap; }
+.landing-cta .button { min-height: 48px; padding: 0 20px; font-size: 14px; }
+.landing-benefits { display: grid; gap: 9px; padding: 0; list-style: none; color: #475569; font-size: 13px; }
+.landing-benefits li { display: flex; align-items: center; gap: 8px; }
+.landing-benefits svg { color: #16a34a; }
+.landing-capa { width: 100%; border-radius: 18px; box-shadow: 0 24px 60px rgba(15,23,42,.18); }
+.landing-price { text-align: center; padding: 44px 24px; margin: 10px 0 34px; border-radius: 18px; background: linear-gradient(120deg, #eff6ff, #faf5ff); border: 1px solid #bfdbfe; }
+.landing-price h2 { font: 800 34px Inter, sans-serif; color: #1e3a5f; margin: 10px 0; }
+.landing-price p { max-width: 640px; margin: 0 auto 20px; color: #475569; font-size: 14px; line-height: 1.7; }
+.landing-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.landing-feature { padding: 20px; border: 1px solid #e8edf3; border-radius: 14px; background: #fff; }
+.landing-feature svg { color: #2563eb; }
+.landing-feature h3 { margin: 10px 0 6px; font-size: 15px; color: #1e3a5f; }
+.landing-feature p { margin: 0; color: #64748b; font-size: 12px; line-height: 1.6; }
+.landing-proof { padding: 50px 0 20px; text-align: center; }
+.landing-proof h2 { font: 800 28px Inter, sans-serif; color: #1e3a5f; margin-bottom: 20px; }
+.landing-screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.landing-screens img { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 24px rgba(15,23,42,.1); }
+.landing-footer { display: flex; justify-content: space-between; gap: 16px; padding-top: 24px; margin-top: 30px; border-top: 1px solid #eef2f6; color: #94a3b8; font-size: 11px; }
+.landing-footer a { color: #2563eb; font-weight: 600; }
+@media (max-width: 860px) {
+  .landing-hero { grid-template-columns: 1fr; padding-top: 30px; }
+  .landing-hero h1 { font-size: 38px; }
+  .landing-footer { flex-direction: column; }
+}
+
 /* Botão de instalar o app */
 .install-button { min-height: 34px; padding: 0 11px; font-size: 11px; }
 .install-help { position: absolute; top: 58px; right: 18px; z-index: 30; width: min(360px, calc(100vw - 36px)); padding: 15px; border: 1px solid #bfdbfe; border-radius: 12px; background: #fff; box-shadow: 0 16px 40px rgba(15, 23, 42, .18); }
