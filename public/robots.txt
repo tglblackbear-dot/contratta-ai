@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://tglblackbear-dot.github.io/contratta-ai/sitemap.xml
