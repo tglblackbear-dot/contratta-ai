@@ -7,6 +7,8 @@
 - Open Graph/Twitter Cards para preview ao compartilhar.
 - JSON-LD `SoftwareApplication` + `Offer` + `ContactPoint` com WhatsApp.
 - Landing pública em `/divulgar`.
+- Foto de capa para vitrine: `public/google-capa.png` (1080×608).
+- Foto de perfil: `public/google-perfil.png` (720×720).
 
 ## O que é gratuito
 
