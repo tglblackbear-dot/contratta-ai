@@ -70,6 +70,8 @@ Se quiser, me chama aqui que eu te ajudo: (71) 99938-3974
 
 ## Arquivos de apoio
 
-- `public/capa-divulgacao.png` — imagem para-post.
-- `public/qr-contratta.png` — QR Code do link de divulgação.
+- `public/capa-divulgacao.png` — imagem para post (1200×630).
+- `public/post-qr-divulgacao.png` — post quadrado 1080×1080 com QR integrado.
+- `public/story-qr-divulgacao.png` — story 1080×1920 com QR integrado.
+- `public/qr-contratta.png` — QR Code isolado do link de divulgação.
 - `public/screens/` — screenshots reais do dashboard, modelos e cobrança.
